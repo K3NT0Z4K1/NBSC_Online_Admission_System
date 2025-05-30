@@ -97,7 +97,7 @@
       <img src="components/img/nbsc logo.jpg" alt="NBSC Logo">
       <h2>NBSC Online Admission System</h2>
       <a href="public/application.php" class="btn btn-apply">Apply For Entrance</a>
-      <a href="officer_login.php" class="btn btn-login">Officer Login</a>
+      <a href="public/login.php" class="btn btn-login">Officer Login</a>
       <div class="credits mt-3">
         Designed by <a href="https://github.com/K3NT0Z4K1" target="_blank">K3NT0Z4K1 & Lloydy</a>
       </div>
