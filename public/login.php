@@ -1,3 +1,30 @@
+<?php
+    include_once('../functions/db_connect.php');
+    session_start();
+
+    if (isset($_POST["submit"])) {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+
+        $sql = "SELECT * FROM tbl_admin WHERE username = '$username' AND password = '$password'";
+        $res = $mycon->query($sql);
+
+        if ($res->num_rows > 0) {
+            while ($row = $res->fetch_array()) {
+                $_SESSION['user'] = $row['User_value'];
+                $user = $_SESSION['user'];
+
+                echo "<script>alert('Welcome $user');</script>";
+                echo "User: " . $_SESSION['user'];
+                echo "<script>window.location.href = 'public/dashboard.php';</script>";
+                exit();
+            }
+        } else {
+            echo "<script>alert('Unknown username and password');</script>";
+        }
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,10 +48,10 @@
         }
 
         .login-container {
-            background-color: #f2f2f2; /* softer than pure white */
+            background-color: #f2f2f2;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
             border-radius: 12px;
-            width: 460px; /* wider box */
+            width: 460px;
             overflow: hidden;
         }
 
@@ -34,10 +61,12 @@
             padding: 24px;
             font-weight: bold;
             font-size: 18px;
+            text-align: center;
         }
 
         .login-form {
             padding: 30px;
+            text-align: center;
         }
 
         .login-form label {
@@ -45,11 +74,13 @@
             margin-bottom: 8px;
             color: #333;
             font-weight: 500;
+            text-align: left;
+            margin-left: 10%;
         }
 
         .login-form input[type="text"],
         .login-form input[type="password"] {
-            width: 100%;
+            width: 80%;
             padding: 12px;
             margin-bottom: 20px;
             border: 1px solid #ccc;
@@ -58,7 +89,7 @@
         }
 
         .login-form button {
-            width: 100%;
+            width: 80%;
             padding: 12px;
             background-color: #3498db;
             color: white;
@@ -85,14 +116,14 @@
 
     <div class="login-container">
         <div class="login-header">Admin Officer Login</div>
-        <form class="login-form" method="POST" action="login_process.php">
+        <form class="login-form" method="POST">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required>
 
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required>
 
-            <button type="submit">Login</button>
+            <button type="submit" name="submit">Login</button>
         </form>
     </div>
 
