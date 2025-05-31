@@ -1,15 +1,41 @@
-function navigate(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
+// components/javascript/sidebar.js
 
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelector(`.nav-item[onclick="navigate('${pageId}')"]`).classList.add('active');
+function navigate(pageId) {
+  // Hide all pages
+  const pages = document.querySelectorAll(".page");
+  pages.forEach(page => page.classList.remove("active"));
+
+  // Show selected page
+  const targetPage = document.getElementById(pageId);
+  if (targetPage) {
+    targetPage.classList.add("active");
+  }
+
+  // Highlight the active sidebar item
+  const navItems = document.querySelectorAll(".nav-item");
+  navItems.forEach(item => item.classList.remove("active"));
+  const clickedItem = Array.from(navItems).find(item => item.textContent.trim().toLowerCase() === pageId.toLowerCase());
+  if (clickedItem) {
+    clickedItem.classList.add("active");
+  }
 }
 
 function selectTab(tabId) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelector(`#${tabId}`).classList.add('active');
+  // Hide all tab content
+  const tabs = document.querySelectorAll(".tab-content");
+  tabs.forEach(tab => tab.classList.remove("active"));
 
-  document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.tab-button[onclick="selectTab('${tabId}')"]`).classList.add('active');
+  // Show selected tab
+  const selectedTab = document.getElementById(tabId);
+  if (selectedTab) {
+    selectedTab.classList.add("active");
+  }
+
+  // Update tab buttons
+  const buttons = document.querySelectorAll(".tab-button");
+  buttons.forEach(btn => btn.classList.remove("active"));
+  const activeBtn = Array.from(buttons).find(btn => btn.textContent.trim().toLowerCase().includes(tabId.toLowerCase()));
+  if (activeBtn) {
+    activeBtn.classList.add("active");
+  }
 }
