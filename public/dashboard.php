@@ -1,97 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Collapsible Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-  
+    <meta charset="UTF-8">
+    <title>NBSC Online Admission</title>
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
 
-<link href= "../components/css/style.css" rel="stylesheet">
-  
+    <style>
+      body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    background: #f5f5f5;
+}
 
+.sidebar {
+    width: 250px;
+    background-color: #0d1b4c;
+    color: white;
+    padding: 20px;
+    min-height: 100vh;
+}
 
+.logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.logo-img {
+    width: 50px;       
+    height: auto;     
+    margin-right: 10px;
+    border-radius: 8px; 
+}
+
+.nav li {
+    list-style: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.nav li:hover, .nav li.active {
+    background-color: #3053a5;
+    border-radius: 5px;
+}
+
+.main {
+    flex: 1;
+    padding: 20px;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.logout-btn {
+    padding: 10px 15px;
+    background-color: #5aa6e5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.tabs {
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    margin-right: 10px;
+    padding: 10px;
+    background-color: #eee;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-button.active {
+    border-bottom: 2px solid #0d1b4c;
+    background-color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+}
+
+.approved {
+    background-color: #7dff97;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.failed {
+    background-color: #f5a623;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.passed {
+    background-color: #7dff97;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.sending {
+    background-color: #b0a8f5;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+    </style>
 </head>
+
 <body>
-
-    
-
-  <!-- Sidebar -->
-  <div id="sidebar" class="sidebar position-fixed">
-    <h4 class="text-center py-3">Dashboard</h4>
-    <a href="#">Home</a>
-    <a href="#">Profile</a>
-    <a href="#">Settings</a>
-    <a href="#">Logout</a>
-  </div>
-
-  <!-- Main Content -->
-  <div id="mainContent" class="content">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4">
-      <div class="container-fluid">
-        <button class="btn btn-outline-light me-3" id="toggleSidebar">☰</button>
-        <span class="navbar-text">Welcome to the NBSC Online Admission System</span>
-      </div>
-    </nav>
-
-    <!-- Form -->
-    <div class="container">
-      <form class="row g-3">
-        <div class="col-md-4">
-          <label for="validationServer01" class="form-label">First name</label>
-          <input type="text" class="form-control" id="" required>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="..\components\img\nbsc logo.jpg" alt="Logo">
+            <h2>NBSC Online Admission</h2>
         </div>
-        <div class="col-md-4">
-          <label for="validationServer02" class="form-label">Last name</label>
-          <input type="text" class="form-control" id="validationServer02" required>
-        </div>
-        <div class="col-md-4">
-          <label for="email" class="form-label">Email</label>
-          <input type="email" class="form-control" id="email" required>
-        </div>
-        <div class="col-md-6">
-          <label for="city" class="form-label">City</label>
-          <input type="text" class="form-control" id="city" required>
-        </div>
-        <div class="col-md-3">
-          <label for="institute" class="form-label">Institute</label>
-          <select class="form-select" id="institute" required>
-            <option selected disabled value="">Choose...</option>
-            <option>IBM</option>
-            <option>ICS</option>
-            <option>ITE</option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label for="phone" class="form-label">Phone Number</label>
-          <input type="text" class="form-control" id="phone" required>
-        </div>
-        <div class="col-12">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="termsCheck" required>
-            <label class="form-check-label" for="termsCheck">
-              Agree to terms and conditions
-            </label>
-          </div>
-        </div>
-        <div class="col-12">
-          <button class="btn btn-primary" type="submit">Submit form</button>
-        </div>
-      </form>
+        <ul class="nav">
+            <li class="active" onclick="showTab('dashboard')">Dashboard</li>
+            <li onclick="showTab('settings')">Settings and Profile</li>
+        </ul>
     </div>
-  </div>
 
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const content = document.getElementById('mainContent');
-    const toggleBtn = document.getElementById('toggleSidebar');
+    <div class="main">
+        <div class="top-bar">
+            <button class="logout-btn">Log out</button>
+        </div>
 
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-      content.classList.toggle('collapsed');
-    });
-  </script>
+        <div class="tabs">
+            <button onclick="selectTab('pending')" class="tab-button active">Pending Applications</button>
+            <button onclick="selectTab('scheduling')" class="tab-button">Exam Scheduling</button>
+            <button onclick="selectTab('results')" class="tab-button">Result Management</button>
+        </div>
+
+        <div id="pending" class="tab-content active">
+            <h3>Exam Scheduling</h3>
+            <table>
+                <tr>
+                    <th>Applicant Name</th>
+                    <th>Application Type</th>
+                    <th>Exam Date</th>
+                    <th>Action</th>
+                </tr>
+                <tr>
+                    <td>Kent Ryan Pagongpong</td>
+                    <td>Senior High Grad</td>
+                    <td>May 28, 2025</td>
+                    <td><span class="approved">Approved</span></td>
+                </tr>
+                <tr>
+                    <td>Jacob Israel Ranin</td>
+                    <td>Senior High Grad</td>
+                    <td>May 30, 2025</td>
+                    <td><span class="approved">Approved</span></td>
+                </tr>
+            </table>
+
+            <h3>Result Management</h3>
+            <table>
+                <tr>
+                    <th>Applicant Name</th>
+                    <th>Score</th>
+                    <th>Assessment</th>
+                    <th>State</th>
+                </tr>
+                <tr>
+                    <td>Dexter Dimatao</td>
+                    <td>51</td>
+                    <td><span class="failed">Failed</span></td>
+                    <td><span class="sending">Sending</span></td>
+                </tr>
+                <tr>
+                    <td>John Lloyd Donque</td>
+                    <td>67</td>
+                    <td><span class="passed">Passed</span></td>
+                    <td><span class="sending">Sending</span></td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="settings" class="tab-content">
+            <h2>Settings and Profile</h2>
+            <p>Coming soon...</p>
+        </div>
+    </div>
+
+    <script src="js/sidebar.js"></script>
 </body>
 </html>
