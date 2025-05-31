@@ -18,19 +18,19 @@ function executeQuery($query){
     }
 }
 
-function getData($query,$col){
-    //echo "Query: ".$query.", col: ".$col;
-    $val = "";
+function getData($query, $col){
     global $mycon;
+    $val = "";
     $res = $mycon->query($query);
-    // if($res ->num_rows > 0){
-    //     while($row = $res->fetch_array()){
-    //         $val = $row[$col];
-    //     }
-    //     return $val;
-    // } else {
-    //     return FALSE;
-    // }
+    if($res && $res->num_rows > 0){
+        while($row = $res->fetch_assoc()){
+            $val = $row[$col];
+        }
+        return $val;
+    } else {
+        return false;
+    }
 }
+
 
 ?>

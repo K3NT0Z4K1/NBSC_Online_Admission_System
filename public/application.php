@@ -8,22 +8,47 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $fname = trim($_POST['firstname']);
   $lname = trim($_POST['lastname']);
+  $status_applicant = trim($_POST['status_applicant']);
   $dob = $_POST['dob'];
   $email = trim($_POST['email']);
   $contact = trim($_POST['contact']);
   $address = trim($_POST['address']);
   $course = trim($_POST['course']);
 
-  if (empty($fname) || empty($lname) || empty($dob) || empty($email) || empty($contact) || empty($address) || empty($course)) {
+  if (empty($fname) || empty($lname) || empty($status_applicant) || empty($dob) || empty($email) || empty($contact) || empty($address) || empty($course)) {
     $error = 'Please fill in all required fields.';
   } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $error = 'Invalid email format.';
   } else {
-    $success = 'Your application has been submitted successfully!';
-    $_POST = array();
+    try {
+      // Prepare SQL statement with placeholders to prevent SQL injection
+      $stmt = $pdo->prepare("INSERT INTO ttbbll_applications 
+          (firstname, lastname, status_applicant, dob, email, contact, address, course) 
+          VALUES (:firstname, :lastname, :status_applicant, :dob, :email, :contact, :address, :course)");
+
+      // Bind parameters
+      $stmt->bindParam(':firstname', $fname);
+      $stmt->bindParam(':lastname', $lname);
+      $stmt->bindParam(':status_applicant', $status_applicant);
+      $stmt->bindParam(':dob', $dob);
+      $stmt->bindParam(':email', $email);
+      $stmt->bindParam(':contact', $contact);
+      $stmt->bindParam(':address', $address);
+      $stmt->bindParam(':course', $course);
+
+      // Execute the statement
+      $stmt->execute();
+
+      $success = 'Your application has been submitted successfully!';
+      $_POST = array(); // Clear form values
+
+    } catch (PDOException $e) {
+      $error = "Failed to submit application: " . $e->getMessage();
+    }
   }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -147,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <div class="alert alert-success" role="alert"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
 
-    <form method="post" action="apply.php" novalidate>
+    <form method="post" action="application.php" novalidate>
       <div class="mb-3">
         <label for="firstname">First Name *</label>
         <input type="text" class="form-control" id="firstname" name="firstname" required
@@ -209,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </form>
   </div>
 
-  <script src="components/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../components/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
