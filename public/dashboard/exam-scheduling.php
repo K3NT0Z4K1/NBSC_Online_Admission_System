@@ -4,7 +4,6 @@ include_once("../../functions/functions.php");
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>NBSC Online Admission - Dashboard</title>
@@ -100,14 +99,11 @@ include_once("../../functions/functions.php");
       margin-top: 10px;
     }
 
-    table,
-    th,
-    td {
+    table, th, td {
       border: 1px solid #ddd;
     }
 
-    th,
-    td {
+    th, td {
       padding: 10px;
       text-align: left;
     }
@@ -128,6 +124,19 @@ include_once("../../functions/functions.php");
       background-color: #b0a8f5;
       padding: 5px 10px;
       border-radius: 5px;
+    }
+
+    .info-btn {
+      padding: 5px 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+
+    .info-btn:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
@@ -159,18 +168,19 @@ include_once("../../functions/functions.php");
       <table>
         <tr>
           <th>Applicant</th>
-          <th>Type</th>
-          <th>Date</th>
+          <th>Course</th>
+          <th>Submitted At</th>
           <th>Status</th>
+          <th>Action</th>
         </tr>
         <?php
-        $query = "SELECT name, applicant_type, exam_date, status FROM tbl_applications"; // adjust table name if needed
+        $query = "SELECT id, CONCAT(firstname, ' ', lastname) AS full_name, course, submitted_at, status_applicant FROM tbl_applications";
         $result = mysqli_query($mycon, $query);
 
         if ($result && mysqli_num_rows($result) > 0) {
           while ($row = mysqli_fetch_assoc($result)) {
-            $statusClass = 'sending';
-            $statusText = strtolower($row['status']);
+            $statusText = strtolower($row['status_applicant']);
+            $statusClass = 'sending'; // default
 
             if ($statusText === 'approved') {
               $statusClass = 'approved';
@@ -179,19 +189,19 @@ include_once("../../functions/functions.php");
             }
 
             echo "<tr>";
-            echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['applicant_type']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['exam_date']) . "</td>";
-            echo "<td><span class='{$statusClass}'>" . htmlspecialchars($row['status']) . "</span></td>";
+            echo "<td>" . htmlspecialchars($row['full_name']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['course']) . "</td>";
+            echo "<td>" . htmlspecialchars(date("F d, Y h:i A", strtotime($row['submitted_at']))) . "</td>";
+            echo "<td><span class='{$statusClass}'>" . htmlspecialchars($row['status_applicant']) . "</span></td>";
+            echo "<td><a href='view-applicant.php?id=" . $row['id'] . "' class='info-btn'>View Info</a></td>";
             echo "</tr>";
           }
         } else {
-          echo "<tr><td colspan='4'>No applications found.</td></tr>";
+          echo "<tr><td colspan='5'>No applications found.</td></tr>";
         }
         ?>
       </table>
     </div>
   </div>
 </body>
-
 </html>
