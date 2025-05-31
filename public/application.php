@@ -6,22 +6,22 @@ $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $fname = trim($_POST['firstname']);
-    $lname = trim($_POST['lastname']);
-    $dob = $_POST['dob'];
-    $email = trim($_POST['email']);
-    $contact = trim($_POST['contact']);
-    $address = trim($_POST['address']);
-    $course = trim($_POST['course']);
+  $fname = trim($_POST['firstname']);
+  $lname = trim($_POST['lastname']);
+  $dob = $_POST['dob'];
+  $email = trim($_POST['email']);
+  $contact = trim($_POST['contact']);
+  $address = trim($_POST['address']);
+  $course = trim($_POST['course']);
 
-    if (empty($fname) || empty($lname) || empty($dob) || empty($email) || empty($contact) || empty($address) || empty($course)) {
-        $error = 'Please fill in all required fields.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Invalid email format.';
-    } else {
-        $success = 'Your application has been submitted successfully!';
-        $_POST = array();
-    }
+  if (empty($fname) || empty($lname) || empty($dob) || empty($email) || empty($contact) || empty($address) || empty($course)) {
+    $error = 'Please fill in all required fields.';
+  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $error = 'Invalid email format.';
+  } else {
+    $success = 'Your application has been submitted successfully!';
+    $_POST = array();
+  }
 }
 ?>
 
@@ -160,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           value="<?= htmlspecialchars($_POST['lastname'] ?? '') ?>" />
       </div>
 
-        <div class="mb-3">
+      <div class="mb-3">
         <label for="status_applicant">Applicant Status *</label>
         <select class="form-select" id="status_applicant" name="status_applicant" required>
           <option value="" disabled <?= empty($_POST['status_applicant']) ? 'selected' : '' ?>>-- Select Status --</option>

@@ -1,32 +1,33 @@
 <?php
-    include_once('../functions/db_connect.php');
-    session_start();
+include_once('../functions/db_connect.php');
+session_start();
 
-    if (isset($_POST["submit"])) {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
+if (isset($_POST["submit"])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-        $sql = "SELECT * FROM tbl_admin WHERE username = '$username' AND password = '$password'";
-        $res = $mycon->query($sql);
+    $sql = "SELECT * FROM tbl_admin WHERE username = '$username' AND password = '$password'";
+    $res = $mycon->query($sql);
 
-        if ($res->num_rows > 0) {
-            while ($row = $res->fetch_array()) {
-                $_SESSION['user'] = $row['User_value'];
-                $user = $_SESSION['user'];
+    if ($res->num_rows > 0) {
+        while ($row = $res->fetch_array()) {
+            $_SESSION['user'] = $row['User_value'];
+            $user = $_SESSION['user'];
 
-                echo "<script>alert('Welcome $user');</script>";
-                echo "User: " . $_SESSION['user'];
-                echo "<script>window.location.href = 'dashboard/dashboard.php';</script>";
-                exit();
-            }
-        } else {
-            echo "<script>alert('Unknown username and password');</script>";
+            echo "<script>alert('Welcome $user');</script>";
+            echo "User: " . $_SESSION['user'];
+            echo "<script>window.location.href = 'dashboard/dashboard.php';</script>";
+            exit();
         }
+    } else {
+        echo "<script>alert('Unknown username and password');</script>";
     }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Admin Officer Login</title>
@@ -110,6 +111,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <h2>Welcome, Log into your account</h2>
@@ -128,4 +130,5 @@
     </div>
 
 </body>
+
 </html>

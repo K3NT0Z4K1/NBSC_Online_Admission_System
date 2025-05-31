@@ -23,8 +23,8 @@
   <!-- <link href="components/css/style.css" rel="stylesheet"> -->
 
   <?php
-    include_once('functions/functions.php');
-    session_start();
+  include_once('functions/functions.php');
+  session_start();
   ?>
   <style>
     .welcome-container {
@@ -109,4 +109,5 @@
   <script src="components/javascript/main.js"></script>
 
 </body>
+
 </html>

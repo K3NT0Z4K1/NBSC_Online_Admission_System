@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>NBSC Online Admission - Dashboard</title>
@@ -10,6 +11,7 @@
       font-family: Arial, sans-serif;
       display: flex;
     }
+
     .sidebar {
       width: 250px;
       background-color: #0d1b4c;
@@ -17,12 +19,14 @@
       min-height: 100vh;
       padding: 20px;
     }
+
     .logo {
       display: flex;
       align-items: center;
       gap: 15px;
       margin-bottom: 30px;
     }
+
     .logo-img {
       width: 60px;
       height: 60px;
@@ -32,28 +36,34 @@
       padding: 10px;
       background-color: white;
     }
+
     .nav {
       list-style: none;
       padding: 0;
     }
+
     .nav-item {
       padding: 12px;
       cursor: pointer;
       border-radius: 5px;
     }
+
     .nav-item.active,
     .nav-item:hover {
       background-color: #3053a5;
     }
+
     .main {
       flex: 1;
       padding: 20px;
       background: #f5f5f5;
     }
+
     .top-bar {
       text-align: right;
       margin-bottom: 20px;
     }
+
     .logout-btn {
       padding: 10px 15px;
       background-color: #5aa6e5;
@@ -62,9 +72,11 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
     .tabs {
       margin-bottom: 15px;
     }
+
     .tab-button {
       padding: 10px;
       background-color: #eee;
@@ -72,33 +84,43 @@
       cursor: pointer;
       margin-right: 5px;
     }
+
     .tab-button.active {
       background-color: white;
       border-bottom: 2px solid #0d1b4c;
       font-weight: bold;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
-    table, th, td {
+
+    table,
+    th,
+    td {
       border: 1px solid #ddd;
     }
-    th, td {
+
+    th,
+    td {
       padding: 10px;
       text-align: left;
     }
-     .approved {
+
+    .approved {
       background-color: #7dff97;
       padding: 5px 10px;
       border-radius: 5px;
     }
+
     .failed {
       background-color: #f5a623;
       padding: 5px 10px;
       border-radius: 5px;
     }
+
     .sending {
       background-color: #b0a8f5;
       padding: 5px 10px;
@@ -106,6 +128,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="sidebar">
     <div class="logo">
@@ -130,19 +153,29 @@
 
     <div id="schedule" class="tab-content active">
       <h2>Exam Scheduling</h2>
-    <table>
-      <tr>
-        <th>Applicant</th><th>Type</th><th>Date</th><th>Status</th>
-      </tr>
-      <tr>
-        <td>Kent Ryan</td><td>SH Grad</td><td>May 28</td><td><span class="approved">Approved</span></td>
-      </tr>
-      <tr>
-        <td>Anna Rivera</td><td>ALS</td><td>May 29</td><td><span class="approved">Approved</span></td>
-      </tr>
-      <!-- Add more rows if needed -->
-    </table>
+      <table>
+        <tr>
+          <th>Applicant</th>
+          <th>Type</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Kent Ryan</td>
+          <td>SH Grad</td>
+          <td>May 28</td>
+          <td><span class="approved">Approved</span></td>
+        </tr>
+        <tr>
+          <td>Anna Rivera</td>
+          <td>ALS</td>
+          <td>May 29</td>
+          <td><span class="approved">Approved</span></td>
+        </tr>
+        <!-- Add more rows if needed -->
+      </table>
     </div>
   </div>
 </body>
+
 </html>
