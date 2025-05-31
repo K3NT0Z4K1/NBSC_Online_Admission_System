@@ -1,3 +1,7 @@
+<?php
+include_once("../../functions/functions.php"); 
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +9,6 @@
   <meta charset="UTF-8" />
   <title>NBSC Online Admission - Dashboard</title>
   <style>
-    /* (Your existing styles copied here for simplicity) */
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -160,19 +163,32 @@
           <th>Date</th>
           <th>Status</th>
         </tr>
-        <tr>
-          <td>Kent Ryan</td>
-          <td>SH Grad</td>
-          <td>May 28</td>
-          <td><span class="approved">Approved</span></td>
-        </tr>
-        <tr>
-          <td>Anna Rivera</td>
-          <td>ALS</td>
-          <td>May 29</td>
-          <td><span class="approved">Approved</span></td>
-        </tr>
-        <!-- Add more rows if needed -->
+        <?php
+        $query = "SELECT name, applicant_type, exam_date, status FROM tbl_applications"; // adjust table name if needed
+        $result = mysqli_query($mycon, $query);
+
+        if ($result && mysqli_num_rows($result) > 0) {
+          while ($row = mysqli_fetch_assoc($result)) {
+            $statusClass = 'sending';
+            $statusText = strtolower($row['status']);
+
+            if ($statusText === 'approved') {
+              $statusClass = 'approved';
+            } elseif ($statusText === 'failed') {
+              $statusClass = 'failed';
+            }
+
+            echo "<tr>";
+            echo "<td>" . htmlspecialchars($row['name']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['applicant_type']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['exam_date']) . "</td>";
+            echo "<td><span class='{$statusClass}'>" . htmlspecialchars($row['status']) . "</span></td>";
+            echo "</tr>";
+          }
+        } else {
+          echo "<tr><td colspan='4'>No applications found.</td></tr>";
+        }
+        ?>
       </table>
     </div>
   </div>

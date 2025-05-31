@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   } else {
     try {
       // Prepare SQL statement with placeholders to prevent SQL injection
-      $stmt = $pdo->prepare("INSERT INTO ttbbll_applications 
+      $stmt = $pdo->prepare("INSERT INTO tbl_applications 
           (firstname, lastname, status_applicant, dob, email, contact, address, course) 
           VALUES (:firstname, :lastname, :status_applicant, :dob, :email, :contact, :address, :course)");
 
