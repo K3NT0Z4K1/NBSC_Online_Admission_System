@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>NBSC Online Admission - Exam Scheduling</title>
+  <title>NBSC Online Admission - Dashboard</title>
   <style>
-    /* Same styles as dashboard for consistency */
+    /* (Your existing styles copied here for simplicity) */
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -89,8 +89,18 @@
       padding: 10px;
       text-align: left;
     }
-    .approved {
+     .approved {
       background-color: #7dff97;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .failed {
+      background-color: #f5a623;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .sending {
+      background-color: #b0a8f5;
       padding: 5px 10px;
       border-radius: 5px;
     }
@@ -99,13 +109,11 @@
 <body>
   <div class="sidebar">
     <div class="logo">
-      <img src="..\components\img\nbsc logo.jpg" alt="Logo" class="logo-img" />
+      <img src="../../components/img/nbsclogo.png" alt="Logo" class="logo-img" />
       <h2>NBSC Online Admission</h2>
     </div>
     <ul class="nav">
-      <li class="nav-item"><a href="dashboard.html" style="color: white; text-decoration: none;">Dashboard</a></li>
-      <li class="nav-item active">Exam Scheduling</li>
-      <li class="nav-item"><a href="result-management.html" style="color: white; text-decoration: none;">Result Management</a></li>
+      <li class="nav-item active">Dashboard</li>
     </ul>
   </div>
 
@@ -114,7 +122,14 @@
       <button class="logout-btn">Log out</button>
     </div>
 
-    <h3>Exam Scheduling</h3>
+    <div class="tabs">
+      <button onclick="window.location.href='dashboard.php'" class="tab-button">Approved Applications</button>
+      <button class="tab-button active">Exam Scheduling</button>
+      <button onclick="window.location.href='result-management.php'" class="tab-button">Result Management</button>
+    </div>
+
+    <div id="schedule" class="tab-content active">
+      <h2>Exam Scheduling</h2>
     <table>
       <tr>
         <th>Applicant</th><th>Type</th><th>Date</th><th>Status</th>
@@ -125,7 +140,9 @@
       <tr>
         <td>Anna Rivera</td><td>ALS</td><td>May 29</td><td><span class="approved">Approved</span></td>
       </tr>
+      <!-- Add more rows if needed -->
     </table>
+    </div>
   </div>
 </body>
 </html>

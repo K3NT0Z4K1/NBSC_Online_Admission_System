@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>NBSC Online Admission - Result Management</title>
+  <title>NBSC Online Admission - Dashboard</title>
   <style>
-    /* Same styles again */
+    /* (Your existing styles copied here for simplicity) */
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -62,6 +62,21 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    .tabs {
+      margin-bottom: 15px;
+    }
+    .tab-button {
+      padding: 10px;
+      background-color: #eee;
+      border: none;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    .tab-button.active {
+      background-color: white;
+      border-bottom: 2px solid #0d1b4c;
+      font-weight: bold;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -74,7 +89,7 @@
       padding: 10px;
       text-align: left;
     }
-    .approved {
+      .approved {
       background-color: #7dff97;
       padding: 5px 10px;
       border-radius: 5px;
@@ -94,13 +109,11 @@
 <body>
   <div class="sidebar">
     <div class="logo">
-      <img src="..\components\img\nbsc logo.jpg" alt="Logo" class="logo-img" />
+      <img src="../../components/img/nbsclogo.png" alt="Logo" class="logo-img" />
       <h2>NBSC Online Admission</h2>
     </div>
     <ul class="nav">
-      <li class="nav-item"><a href="dashboard.html" style="color: white; text-decoration: none;">Dashboard</a></li>
-      <li class="nav-item"><a href="exam-scheduling.html" style="color: white; text-decoration: none;">Exam Scheduling</a></li>
-      <li class="nav-item active">Result Management</li>
+      <li class="nav-item active">Dashboard</li>
     </ul>
   </div>
 
@@ -109,7 +122,15 @@
       <button class="logout-btn">Log out</button>
     </div>
 
-    <h3>Result Management</h3>
+    <div class="tabs">
+      <button onclick="window.location.href='dashboard.php'" class="tab-button">Approved Applications</button>
+      <button onclick="window.location.href='result-management.php'" class="tab-button">Exam Scheduling</button>
+      <button class="tab-button active">Result Management</button>
+
+    </div>
+
+    <div id="result" class="tab-content active">
+      <h2>Result Management</h2>
     <table>
       <tr>
         <th>Applicant</th><th>Course</th><th>Result</th><th>Status</th>
@@ -124,6 +145,7 @@
         <td>Anna Rivera</td><td>BSIT</td><td>75%</td><td><span class="sending">Pending</span></td>
       </tr>
     </table>
+    </div>
   </div>
 </body>
 </html>
