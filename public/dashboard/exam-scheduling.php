@@ -1,9 +1,10 @@
 <?php
-include_once("../../functions/functions.php"); 
+include_once("../../functions/functions.php");
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>NBSC Online Admission - Dashboard</title>
@@ -99,11 +100,14 @@ include_once("../../functions/functions.php");
       margin-top: 10px;
     }
 
-    table, th, td {
+    table,
+    th,
+    td {
       border: 1px solid #ddd;
     }
 
-    th, td {
+    th,
+    td {
       padding: 10px;
       text-align: left;
     }
@@ -133,10 +137,56 @@ include_once("../../functions/functions.php");
       border: none;
       border-radius: 4px;
       text-decoration: none;
+      cursor: pointer;
     }
 
     .info-btn:hover {
       background-color: #0056b3;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      max-width: 90%;
+      position: relative;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      color: #aaa;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      color: #333;
+    }
+
+    .modal .label {
+      font-weight: bold;
+    }
+
+    .modal .info-item {
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -152,15 +202,18 @@ include_once("../../functions/functions.php");
     </ul>
   </div>
 
+
   <div class="main">
     <div class="top-bar">
       <button class="logout-btn">Log out</button>
     </div>
 
     <div class="tabs">
+
       <button onclick="window.location.href='dashboard.php'" class="tab-button">Approved Applications</button>
       <button class="tab-button active">Exam Scheduling</button>
       <button onclick="window.location.href='result-management.php'" class="tab-button">Result Management</button>
+
     </div>
 
     <div id="schedule" class="tab-content active">
@@ -180,20 +233,14 @@ include_once("../../functions/functions.php");
         if ($result && mysqli_num_rows($result) > 0) {
           while ($row = mysqli_fetch_assoc($result)) {
             $statusText = strtolower($row['status_applicant']);
-            $statusClass = 'sending'; // default
-
-            if ($statusText === 'approved') {
-              $statusClass = 'approved';
-            } elseif ($statusText === 'failed') {
-              $statusClass = 'failed';
-            }
+            $statusClass = $statusText === 'approved' ? 'approved' : ($statusText === 'failed' ? 'failed' : 'sending');
 
             echo "<tr>";
             echo "<td>" . htmlspecialchars($row['full_name']) . "</td>";
             echo "<td>" . htmlspecialchars($row['course']) . "</td>";
             echo "<td>" . htmlspecialchars(date("F d, Y h:i A", strtotime($row['submitted_at']))) . "</td>";
             echo "<td><span class='{$statusClass}'>" . htmlspecialchars($row['status_applicant']) . "</span></td>";
-            echo "<td><a href='view-applicant.php?id=" . $row['id'] . "' class='info-btn'>View Info</a></td>";
+            echo "<td><button class='info-btn' onclick='openModal(" . $row['id'] . ")'>View Info</button></td>";
             echo "</tr>";
           }
         } else {
@@ -203,5 +250,50 @@ include_once("../../functions/functions.php");
       </table>
     </div>
   </div>
+
+  <!-- Modal -->
+  <div id="infoModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h3>Applicant Info</h3>
+      <div class="info-item"><span class="label">Full Name:</span> <span id="infoName"></span></div>
+      <div class="info-item"><span class="label">Email:</span> <span id="infoEmail"></span></div>
+      <div class="info-item"><span class="label">Contact:</span> <span id="infoContact"></span></div>
+      <div class="info-item"><span class="label">Address:</span> <span id="infoAddress"></span></div>
+      <div class="info-item"><span class="label">Course:</span> <span id="infoCourse"></span></div>
+      <div class="info-item"><span class="label">Status:</span> <span id="infoStatus"></span></div>
+      <div class="info-item"><span class="label">Submitted:</span> <span id="infoSubmitted"></span></div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) {
+      fetch("get-applicant.php?id=" + id)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("infoName").textContent = data.firstname + " " + data.lastname;
+          document.getElementById("infoEmail").textContent = data.email;
+          document.getElementById("infoContact").textContent = data.contact;
+          document.getElementById("infoAddress").textContent = data.address;
+          document.getElementById("infoCourse").textContent = data.course;
+          document.getElementById("infoStatus").textContent = data.status_applicant;
+          document.getElementById("infoSubmitted").textContent = data.submitted_at;
+
+          document.getElementById("infoModal").style.display = "block";
+        });
+    }
+
+    function closeModal() {
+      document.getElementById("infoModal").style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById("infoModal");
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+  </script>
 </body>
+
 </html>
