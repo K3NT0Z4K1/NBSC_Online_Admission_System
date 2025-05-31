@@ -94,7 +94,7 @@
 
   <div class="welcome-container">
     <div class="welcome-card">
-      <img src="components/img/nbsc logo.jpg" alt="NBSC Logo">
+      <img src="components/img/nbsclogo.png" alt="NBSC Logo">
       <h2>NBSC Online Admission System</h2>
       <a href="public/application.php" class="btn btn-apply">Apply For Entrance</a>
       <a href="public/login.php" class="btn btn-login">Officer Login</a>
