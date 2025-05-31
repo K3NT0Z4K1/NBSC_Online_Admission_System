@@ -16,7 +16,7 @@
 
                 echo "<script>alert('Welcome $user');</script>";
                 echo "User: " . $_SESSION['user'];
-                echo "<script>window.location.href = 'dashboard.php';</script>";
+                echo "<script>window.location.href = 'dashboard/dashboard.php';</script>";
                 exit();
             }
         } else {

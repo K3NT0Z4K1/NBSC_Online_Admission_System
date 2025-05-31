@@ -99,7 +99,7 @@
 <body>
   <div class="sidebar">
     <div class="logo">
-      <img src="..\components\img\nbsc logo.jpg" alt="Logo" class="logo-img" />
+      <img src="../../components/img/nbsclogo.png" alt="Logo" class="logo-img" />
       <h2>NBSC Online Admission</h2>
     </div>
     <ul class="nav">
@@ -114,8 +114,8 @@
 
     <div class="tabs">
       <button class="tab-button active">Approved Applications</button>
-      <button onclick="window.location.href='exam-scheduling.html'" class="tab-button">Exam Scheduling</button>
-      <button onclick="window.location.href='result-management.html'" class="tab-button">Result Management</button>
+      <button onclick="window.location.href='exam-scheduling.php'" class="tab-button">Exam Scheduling</button>
+      <button onclick="window.location.href='result-management.php'" class="tab-button">Result Management</button>
     </div>
 
     <div id="approved" class="tab-content active">
