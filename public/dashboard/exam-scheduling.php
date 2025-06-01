@@ -206,7 +206,7 @@ include_once("../../functions/functions.php");
   <div class="main">
     <div class="top-bar">
       <button class="logout-btn">Log out</button>
-    </div>
+    </div>  
 
     <div class="tabs">
 

@@ -220,13 +220,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           required><?= htmlspecialchars($_POST['address'] ?? '') ?></textarea>
       </div>
 
+    
+
       <div class="mb-3">
         <label for="course">Course Applying For *</label>
         <select class="form-select" id="course" name="course" required>
           <option value="" disabled <?= empty($_POST['course']) ? 'selected' : '' ?>>-- Select Course --</option>
           <option value="BSIT" <?= (($_POST['course'] ?? '') === 'BSIT') ? 'selected' : '' ?>>Bachelor of Science in Information Technology</option>
-          <option value="BSCS" <?= (($_POST['course'] ?? '') === 'BSCS') ? 'selected' : '' ?>>Bachelor of Science in Computer Science</option>
-          <option value="BSA" <?= (($_POST['course'] ?? '') === 'BSA') ? 'selected' : '' ?>>Bachelor of Science in Accountancy</option>
+          <option value="BSBA-MM" <?= (($_POST['course'] ?? '') === 'BSBA-MM') ? 'selected' : '' ?>>Bachelor of Science in Business Administration Major in Marketing Management</option>
+          <option value="BSBA-FM" <?= (($_POST['course'] ?? '') === 'BSBA-FM') ? 'selected' : '' ?>>Bachelor of Science in Business Administration Major in Financial Management</option>
+          <option value="BSBA-OM" <?= (($_POST['course'] ?? '') === 'BSBA-OM') ? 'selected' : '' ?>>Bachelor of Science in Business Administration Major in Operations Management</option>
+          <option value="BSE-Eng" <?= (($_POST['course'] ?? '') === 'BSE-Eng') ? 'selected' : '' ?>>Bachelor of Secondary in Education Major in English</option>
+          <option value="BSE-Math" <?= (($_POST['course'] ?? '') === 'BSE-Math') ? 'selected' : '' ?>>Bachelor of Secondary in Education Major in Math</option>
+          <option value="BEE" <?= (($_POST['course'] ?? '') === 'BEE') ? 'selected' : '' ?>>Bachelor in Elementary Education</option>
+          <option value="BECE" <?= (($_POST['course'] ?? '') === 'BECE') ? 'selected' : '' ?>>Bachelor of Early Childhood Education</option>
         </select>
       </div>
 
