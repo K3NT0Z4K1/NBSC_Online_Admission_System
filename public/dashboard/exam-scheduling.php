@@ -207,7 +207,7 @@ include_once("../../functions/functions.php");
 
   <div class="main">
      <div class="top-bar">
-      <button class="logout-btn">Log out</button>
+      <button class="logout-btn" onclick="window.location.href='../../index.php'">Log out</button>
     </div>
 
     <div class="tabs">
@@ -253,57 +253,69 @@ include_once("../../functions/functions.php");
   </div>
 
   <div id="infoModal" class="modal">
-  <div class="modal-content">
-    <span class="close-btn" onclick="closeModal()">&times;</span>
-    <h3>Applicant Information</h3>
-    <div id="modalContent">
-      Loading...
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h3>Applicant Info</h3>
+      <div class="info-item"><span class="label">Full Name:</span> <span id="infoName"></span></div>
+      <div class="info-item"><span class="label">Email:</span> <span id="infoEmail"></span></div>
+      <div class="info-item"><span class="label">Contact:</span> <span id="infoContact"></span></div>
+      <div class="info-item"><span class="label">Address:</span> <span id="infoAddress"></span></div>
+      <div class="info-item"><span class="label">Course:</span> <span id="infoCourse"></span></div>
+      <div class="info-item"><span class="label">Status:</span> <span id="infoStatus"></span></div>
+      <div class="info-item"><span class="label">Submitted:</span> <span id="infoSubmitted"></span></div>
     </div>
   </div>
-</div>
 
   <script>
-   function openModal(id) {
-  const modal = document.getElementById('infoModal');
-  const content = document.getElementById('modalContent');
-  
-  content.innerHTML = 'Loading...';
-  modal.style.display = 'block';
+    function openModal(id) {
+      fetch("get-applicant.php?id=" + id)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("infoName").textContent = data.firstname + " " + data.lastname;
+          document.getElementById("infoEmail").textContent = data.email;
+          document.getElementById("infoContact").textContent = data.contact;
+          document.getElementById("infoAddress").textContent = data.address;
+          document.getElementById("infoCourse").textContent = data.course;
+          document.getElementById("infoStatus").textContent = data.status_applicant;
+          document.getElementById("infoSubmitted").textContent = data.submitted_at;
 
-  fetch(`get-applicant.php?id=${id}`)
-    .then(response => response.json())
-    .then(data => {
-      if (data.error) {
-        content.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+          document.getElementById("infoModal").style.display = "block";
+        });
+    }
+
+    function closeModal() {
+      document.getElementById("infoModal").style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById("infoModal");
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+
+    function setExamDate(id) {
+      const input = document.getElementById("exam_date_" + id);
+      const date = input.value;
+
+      if (!date) {
+        alert("Please select a date first.");
         return;
       }
-      
-      // Customize the displayed info as you want
-      content.innerHTML = `
-        <p><strong>Name:</strong> ${data.firstname} ${data.lastname}</p>
-        <p><strong>Course:</strong> ${data.course}</p>
-        <p><strong>Submitted At:</strong> ${data.submitted_at}</p>
-        <p><strong>Status:</strong> ${data.application_status}</p>
-        <p><strong>Additional Info:</strong> ${data.additional_info || 'N/A'}</p>
-      `;
-    })
-    .catch(err => {
-      content.innerHTML = `<p style="color:red;">Failed to load data</p>`;
-      console.error(err);
-    });
-}
 
-function closeModal() {
-  document.getElementById('infoModal').style.display = 'none';
-}
+      fetch("set-exam-date.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "id=" + id + "&exam_date=" + encodeURIComponent(date),
+      })
+        .then((res) => res.text())
+        .then((msg) => alert(msg))
+        .catch((err) => alert("Error: " + err));
+    }
 
-// Optional: close modal when clicking outside the modal content
-window.onclick = function(event) {
-  const modal = document.getElementById('infoModal');
-  if (event.target == modal) {
-    closeModal();
-  }
-}
+   
 
     function updateStatus(id, status) {
       fetch("update-status.php", {

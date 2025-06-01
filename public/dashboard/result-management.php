@@ -152,7 +152,7 @@
 
   <div class="main">
     <div class="top-bar">
-      <button class="logout-btn">Log out</button>
+      <button class="logout-btn" onclick="window.location.href='../../index.php'">Log out</button>
     </div>
 
     <div class="tabs">
