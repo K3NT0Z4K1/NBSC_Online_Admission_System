@@ -100,6 +100,7 @@ include_once("../../functions/functions.php");
 
     h2 {
       margin-bottom: 15px;
+      margin-top: 15px;
     }
 
     table {
@@ -197,7 +198,7 @@ include_once("../../functions/functions.php");
   <div class="sidebar">
      <div class="logo">
       <img src="../../components/img/nbsclogo.png" alt="Logo" class="logo-img">
-      <h3>NBSC Admission</h3>
+      <h3>NBSC Online Admission</h3>
     </div>
     <ul class="nav">
       <li class="nav-item active">Dashboard</li>
@@ -251,10 +252,58 @@ include_once("../../functions/functions.php");
     </table>
   </div>
 
-  <!-- Modal code -->
+  <div id="infoModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <h3>Applicant Information</h3>
+    <div id="modalContent">
+      Loading...
+    </div>
+  </div>
+</div>
 
   <script>
-    // Your existing openModal, closeModal, setExamDate functions...
+   function openModal(id) {
+  const modal = document.getElementById('infoModal');
+  const content = document.getElementById('modalContent');
+  
+  content.innerHTML = 'Loading...';
+  modal.style.display = 'block';
+
+  fetch(`get-applicant.php?id=${id}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        content.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+        return;
+      }
+      
+      // Customize the displayed info as you want
+      content.innerHTML = `
+        <p><strong>Name:</strong> ${data.firstname} ${data.lastname}</p>
+        <p><strong>Course:</strong> ${data.course}</p>
+        <p><strong>Submitted At:</strong> ${data.submitted_at}</p>
+        <p><strong>Status:</strong> ${data.application_status}</p>
+        <p><strong>Additional Info:</strong> ${data.additional_info || 'N/A'}</p>
+      `;
+    })
+    .catch(err => {
+      content.innerHTML = `<p style="color:red;">Failed to load data</p>`;
+      console.error(err);
+    });
+}
+
+function closeModal() {
+  document.getElementById('infoModal').style.display = 'none';
+}
+
+// Optional: close modal when clicking outside the modal content
+window.onclick = function(event) {
+  const modal = document.getElementById('infoModal');
+  if (event.target == modal) {
+    closeModal();
+  }
+}
 
     function updateStatus(id, status) {
       fetch("update-status.php", {

@@ -5,10 +5,14 @@
   <meta charset="UTF-8" />
   <title>NBSC Online Admission - Dashboard</title>
   <style>
-    /* (Your existing styles copied here for simplicity) */
-    body {
+   * {
       margin: 0;
-      font-family: Arial, sans-serif;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
     }
 
@@ -23,29 +27,28 @@
     .logo {
       display: flex;
       align-items: center;
-      gap: 15px;
-      margin-bottom: 30px;
+      gap: 10px;
+      margin-bottom: 40px;
     }
 
     .logo-img {
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      object-fit: contain;
-      border: 2px solid white;
-      padding: 10px;
+      object-fit: cover;
       background-color: white;
+      padding: 5px;
     }
 
     .nav {
       list-style: none;
-      padding: 0;
     }
 
     .nav-item {
       padding: 12px;
-      cursor: pointer;
+      margin-bottom: 10px;
       border-radius: 5px;
+      cursor: pointer;
     }
 
     .nav-item.active,
@@ -55,58 +58,65 @@
 
     .main {
       flex: 1;
-      padding: 20px;
-      background: #f5f5f5;
+      background-color: #f5f5f5;
+      padding: 30px;
     }
 
     .top-bar {
-      text-align: right;
+      display: flex;
+      justify-content: flex-end;
       margin-bottom: 20px;
     }
 
     .logout-btn {
-      padding: 10px 15px;
-      background-color: #5aa6e5;
+      background-color: #0d1b4c;
       color: white;
+      padding: 10px 20px;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
     }
 
     .tabs {
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
     .tab-button {
-      padding: 10px;
-      background-color: #eee;
+      padding: 10px 20px;
       border: none;
+      background-color: #ddd;
+      margin-right: 10px;
+      border-radius: 5px;
       cursor: pointer;
-      margin-right: 5px;
     }
 
     .tab-button.active {
-      background-color: white;
-      border-bottom: 2px solid #0d1b4c;
-      font-weight: bold;
+      background-color: #0d1b4c;
+      color: white;
+    }
+
+    h2 {
+      margin-bottom: 15px;
+      margin-top: 15px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    table,
-    th,
-    td {
-      border: 1px solid #ddd;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
     }
 
     th,
     td {
-      padding: 10px;
+      padding: 12px;
       text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #0d1b4c;
+      color: white;
     }
 
     .approved {
@@ -133,7 +143,7 @@
   <div class="sidebar">
     <div class="logo">
       <img src="../../components/img/nbsclogo.png" alt="Logo" class="logo-img" />
-      <h2>NBSC Online Admission</h2>
+      <h3>NBSC Online Admission</h3>
     </div>
     <ul class="nav">
       <li class="nav-item active">Dashboard</li>
