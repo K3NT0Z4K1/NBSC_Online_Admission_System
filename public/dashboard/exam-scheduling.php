@@ -317,26 +317,30 @@ include_once("../../functions/functions.php");
 
    
 
-    function updateStatus(id, status) {
-      fetch("update-status.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: "id=" + id + "&status=" + encodeURIComponent(status),
-      })
-      .then(res => res.text())
-      .then(msg => {
-        if (msg.trim() === "success") {
-          // Remove the applicant row from the table by row id
-          const row = document.getElementById('row_' + id);
-          if(row) row.remove();
-        } else {
-          alert("Failed to update status: " + msg);
-        }
-      })
-      .catch(err => alert("Error: " + err));
+   function updateStatus(id, status) {
+  fetch("update-status.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "id=" + id + "&status=" + encodeURIComponent(status),
+  })
+  .then(res => res.text())
+  .then(msg => {
+    if (msg.trim() === "success") {
+      // Remove the applicant row from the table by row id
+      const row = document.getElementById('row_' + id);
+      if(row) row.remove();
+
+      // Show popup
+      alert(`Applicant #${id} has been ${status}.`);
+    } else {
+      alert("Failed to update status: " + msg);
     }
+  })
+  .catch(err => alert("Error: " + err));
+}
+
   </script>
 </body>
 </html>
