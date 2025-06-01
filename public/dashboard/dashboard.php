@@ -1,3 +1,30 @@
+<?php
+// Enable error reporting for debugging (remove in production)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Include your DB connection file (adjust the path if needed)
+include '../../functions/db_connect.php';
+
+// Check if $mycon is set and is a valid mysqli connection
+if (!isset($mycon) || !$mycon) {
+    die("Database connection failed.");
+}
+
+// SQL query to fetch approved applicants
+$query = "SELECT CONCAT(firstname, ' ', lastname) AS full_name, course, submitted_at, application_status 
+          FROM tbl_applications 
+          WHERE application_status = 'Approved'";
+
+$result = mysqli_query($mycon, $query);
+
+// Check for query error
+if (!$result) {
+    die("Query error: " . mysqli_error($mycon));
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +32,6 @@
   <meta charset="UTF-8" />
   <title>NBSC Online Admission - Dashboard</title>
   <style>
-    /* (Your existing styles copied here for simplicity) */
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -110,9 +136,11 @@
     }
 
     .sending {
-      background-color: #b0a8f5;
+      background-color: #c8e6c9;
+      color: #256029;
       padding: 5px 10px;
       border-radius: 5px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -131,7 +159,6 @@
   <div class="main">
     <div class="top-bar">
       <button class="logout-btn" onclick="window.location.href='../goodbye.php'">Log out</button>
-
     </div>
 
     <div class="tabs">
@@ -149,19 +176,21 @@
           <th>Date Applied</th>
           <th>Status</th>
         </tr>
-        <tr>
-          <td>Maria Santos</td>
-          <td>BSIT</td>
-          <td>May 25</td>
-          <td><span class="sending">Pending</span></td>
-        </tr>
-        <tr>
-          <td>Juan Dela Cruz</td>
-          <td>BSED</td>
-          <td>May 26</td>
-          <td><span class="sending">Pending</span></td>
-        </tr>
-        <!-- more rows as needed -->
+
+        <?php
+        if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($row['full_name']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['course']) . "</td>";
+                echo "<td>" . date('F j, Y', strtotime($row['submitted_at'])) . "</td>";
+                echo "<td><span class='sending'>" . htmlspecialchars($row['application_status']) . "</span></td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='4'>No approved applicants found.</td></tr>";
+        }
+        ?>
       </table>
     </div>
   </div>

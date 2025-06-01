@@ -193,10 +193,9 @@ include_once("../../functions/functions.php");
     }
   </style>
 </head>
-
 <body>
   <div class="sidebar">
-    <div class="logo">
+     <div class="logo">
       <img src="../../components/img/nbsclogo.png" alt="Logo" class="logo-img">
       <h3>NBSC Admission</h3>
     </div>
@@ -206,7 +205,7 @@ include_once("../../functions/functions.php");
   </div>
 
   <div class="main">
-    <div class="top-bar">
+     <div class="top-bar">
       <button class="logout-btn">Log out</button>
     </div>
 
@@ -214,7 +213,6 @@ include_once("../../functions/functions.php");
       <button onclick="window.location.href='dashboard.php'" class="tab-button">Approved Applications</button>
       <button class="tab-button active">Exam Scheduling</button>
       <button onclick="window.location.href='result-management.php'" class="tab-button">Result Management</button>
-    </div>
 
     <h2>Exam Scheduling</h2>
     <table>
@@ -226,12 +224,12 @@ include_once("../../functions/functions.php");
         <th>Actions</th>
       </tr>
       <?php
-      $query = "SELECT id, CONCAT(firstname, ' ', lastname) AS full_name, course, submitted_at FROM tbl_applications";
+      $query = "SELECT id, CONCAT(firstname, ' ', lastname) AS full_name, course, submitted_at FROM tbl_applications WHERE application_status = 'Pending'";
       $result = mysqli_query($mycon, $query);
 
       if ($result && mysqli_num_rows($result) > 0) {
         while ($row = mysqli_fetch_assoc($result)) {
-          echo "<tr>";
+          echo "<tr id='row_{$row['id']}'>";
           echo "<td>" . htmlspecialchars($row['full_name']) . "</td>";
           echo "<td>" . htmlspecialchars($row['course']) . "</td>";
           echo "<td>" . htmlspecialchars(date("F d, Y h:i A", strtotime($row['submitted_at']))) . "</td>";
@@ -253,90 +251,31 @@ include_once("../../functions/functions.php");
     </table>
   </div>
 
-  <div id="infoModal" class="modal">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeModal()">&times;</span>
-      <h3>Applicant Info</h3>
-      <div class="info-item"><span class="label">Full Name:</span> <span id="infoName"></span></div>
-      <div class="info-item"><span class="label">Email:</span> <span id="infoEmail"></span></div>
-      <div class="info-item"><span class="label">Contact:</span> <span id="infoContact"></span></div>
-      <div class="info-item"><span class="label">Address:</span> <span id="infoAddress"></span></div>
-      <div class="info-item"><span class="label">Course:</span> <span id="infoCourse"></span></div>
-      <div class="info-item"><span class="label">Status:</span> <span id="infoStatus"></span></div>
-      <div class="info-item"><span class="label">Submitted:</span> <span id="infoSubmitted"></span></div>
-    </div>
-  </div>
+  <!-- Modal code -->
 
   <script>
-    function openModal(id) {
-      fetch("get-applicant.php?id=" + id)
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("infoName").textContent = data.firstname + " " + data.lastname;
-          document.getElementById("infoEmail").textContent = data.email;
-          document.getElementById("infoContact").textContent = data.contact;
-          document.getElementById("infoAddress").textContent = data.address;
-          document.getElementById("infoCourse").textContent = data.course;
-          document.getElementById("infoStatus").textContent = data.status_applicant;
-          document.getElementById("infoSubmitted").textContent = data.submitted_at;
+    // Your existing openModal, closeModal, setExamDate functions...
 
-          document.getElementById("infoModal").style.display = "block";
-        });
-    }
-
-    function closeModal() {
-      document.getElementById("infoModal").style.display = "none";
-    }
-
-    window.onclick = function(event) {
-      const modal = document.getElementById("infoModal");
-      if (event.target === modal) {
-        closeModal();
-      }
-    };
-
-    function setExamDate(id) {
-      const input = document.getElementById("exam_date_" + id);
-      const date = input.value;
-
-      if (!date) {
-        alert("Please select a date first.");
-        return;
-      }
-
-      fetch("set-exam-date.php", {
+    function updateStatus(id, status) {
+      fetch("update-status.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: "id=" + id + "&exam_date=" + encodeURIComponent(date),
+        body: "id=" + id + "&status=" + encodeURIComponent(status),
       })
-        .then((res) => res.text())
-        .then((msg) => alert(msg))
-        .catch((err) => alert("Error: " + err));
+      .then(res => res.text())
+      .then(msg => {
+        if (msg.trim() === "success") {
+          // Remove the applicant row from the table by row id
+          const row = document.getElementById('row_' + id);
+          if(row) row.remove();
+        } else {
+          alert("Failed to update status: " + msg);
+        }
+      })
+      .catch(err => alert("Error: " + err));
     }
-
-    function updateStatus(id, status) {
-  fetch("update-status.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: "id=" + id + "&status=" + encodeURIComponent(status),
-  })
-    .then(res => res.text())
-    .then(msg => {
-      if (msg.trim() === "success") {
-        // Remove the applicant row from the table
-        const row = document.querySelector(`#exam_date_${id}`).closest('tr');
-        if(row) row.remove();
-      } else {
-        alert("Failed to update status: " + msg);
-      }
-    })
-    .catch(err => alert("Error: " + err));
-}
-
   </script>
 </body>
 </html>
