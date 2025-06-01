@@ -147,7 +147,7 @@
 
     <div class="tabs">
       <button onclick="window.location.href='dashboard.php'" class="tab-button">Approved Applications</button>
-      <button onclick="window.location.href='result-management.php'" class="tab-button">Exam Scheduling</button>
+      <button onclick="window.location.href='exam-scheduling.php'" class="tab-button">Exam Scheduling</button>
       <button class="tab-button active">Result Management</button>
 
     </div>
