@@ -1,81 +1,113 @@
-<?php
-
-include_once("functions/functions.php")
-
-
-?>
-
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Page</title>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>NBSC Online Admission System</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="components/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Poppins:300,400,500,600,700" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="components/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="components/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="components/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <!-- <link href="components/css/style.css" rel="stylesheet"> -->
+
+  <?php
+  include_once('functions/functions.php');
+  session_start();
+  ?>
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    .welcome-container {
+      height: 100vh;
+      background: linear-gradient(to right, #00264d, #007acc);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f4f4f4;
+      color: blue;
+      text-align: center;
     }
-    .login-container {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      width: 300px;
+
+    .welcome-card {
+      background-color: #fff;
+      color: #000;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 100%;
     }
-    .login-container h2 {
+
+    .welcome-card img {
+      height: 80px;
       margin-bottom: 20px;
-      text-align: center;
     }
-    .login-container input {
+
+    .welcome-card h2 {
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+
+    .welcome-card .btn {
       width: 100%;
-      padding: 10px;
       margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
     }
-    .login-container button {
-      width: 100%;
-      padding: 10px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+
+    .btn-apply {
+      background-color: #1e5a8a;
+      color: #fff;
     }
-    .login-container button:hover {
-      background-color: #0056b3;
+
+    .btn-apply:hover {
+      background-color: #16486d;
     }
-    .signup-link {
-      text-align: center;
-      margin-top: 10px;
+
+    .btn-login {
+      background-color: #2da4f2;
+      color: #fff;
     }
-    .signup-link a {
-      color: #007BFF;
-      text-decoration: none;
+
+    .btn-login:hover {
+      background-color: #1c8ad1;
     }
-    .signup-link a:hover {
-      text-decoration: underline;
+
+    .credits {
+      margin-top: 20px;
+      font-size: 14px;
     }
   </style>
 </head>
+
 <body>
-  <div class="login-container">
-    <h2>Login</h2>
-    <form action="/login" method="POST">
-      <input type="text" name="username" placeholder="Username" required>
-      <input type="password" name="password" placeholder="Password" required>
-      <button type="submit">Login</button>
-    </form>
-    <div class="signup-link">
-      <p>Don't have an account? <a href="./signup.html">Sign up</a></p>
+
+  <div class="welcome-container">
+    <div class="welcome-card">
+      <img src="components/img/nbsclogo.png" alt="NBSC Logo">
+      <h2>NBSC Online Admission System</h2>
+      <a href="public/application.php" class="btn btn-apply">Apply For Entrance</a>
+      <a href="public/login.php" class="btn btn-login">Officer Login</a>
+      <div class="credits mt-3">
+        Designed by <a href="https://github.com/K3NT0Z4K1" target="_blank">K3NT0Z4K1 & Lloydy</a>
+      </div>
     </div>
   </div>
+
+  <!-- Vendor JS Files -->
+  <script src="components/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="components/javascript/main.js"></script>
+
 </body>
+
 </html>
