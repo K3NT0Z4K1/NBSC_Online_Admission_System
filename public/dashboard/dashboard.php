@@ -1,27 +1,31 @@
 <?php
-// Enable error reporting for debugging (remove in production)
+// Enable error reporting (disable in production)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Include your DB connection file (adjust the path if needed)
+// Include DB connection
 include '../../functions/db_connect.php';
 
-// Check if $mycon is set and is a valid mysqli connection
 if (!isset($mycon) || !$mycon) {
-  die("Database connection failed.");
+    die("Database connection failed.");
 }
 
-// SQL query to fetch approved applicants
-$query = "SELECT CONCAT(firstname, ' ', lastname) AS full_name, course, submitted_at, application_status 
-          FROM tbl_applications 
-          WHERE application_status = 'Approved'";
+// Fetch approved applicants and check if exam is taken
+$query = "SELECT 
+            a.id,
+            CONCAT(a.firstname, ' ', a.lastname) AS full_name, 
+            a.course, 
+            a.submitted_at, 
+            a.application_status,
+            (SELECT COUNT(*) FROM tbl_exam_results e WHERE e.application_id = a.id) AS exam_taken
+          FROM tbl_applications a 
+          WHERE a.application_status = 'Approved'";
 
 $result = mysqli_query($mycon, $query);
 
-// Check for query error
 if (!$result) {
-  die("Query error: " . mysqli_error($mycon));
+    die("Query error: " . mysqli_error($mycon));
 }
 ?>
 
@@ -30,7 +34,7 @@ if (!$result) {
 
 <head>
   <meta charset="UTF-8" />
-  <title>NBSC Online Admission - Dashboard</title>
+  <title>NBSC Online Admission - Approved Applications</title>
   <style>
     * {
       margin: 0;
@@ -152,6 +156,36 @@ if (!$result) {
       border-radius: 5px;
       font-weight: bold;
     }
+
+    .manage-btn {
+      background-color: #3053a5;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .manage-btn:hover {
+      background-color: #1f3b76;
+    }
+
+    .msg {
+      padding: 10px 20px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .msg.success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .msg.warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
   </style>
 </head>
 
@@ -160,7 +194,6 @@ if (!$result) {
     <div class="logo">
       <img src="../../components/img/nbsclogo.png" alt="Logo" class="logo-img" />
       <h3>NBSC Online Admission</h3>
-
     </div>
     <ul class="nav">
       <li class="nav-item active">Dashboard</li>
@@ -178,6 +211,16 @@ if (!$result) {
       <button onclick="window.location.href='result-management.php'" class="tab-button">Result Management</button>
     </div>
 
+    <?php
+    if (isset($_GET['msg'])) {
+      if ($_GET['msg'] == 'marked_taken') {
+        echo "<div class='msg success'>Exam successfully marked as taken.</div>";
+      } elseif ($_GET['msg'] == 'already_marked') {
+        echo "<div class='msg warning'>Exam already marked as taken.</div>";
+      }
+    }
+    ?>
+
     <div id="approved" class="tab-content active">
       <h2>Approved Applications</h2>
       <table>
@@ -186,6 +229,7 @@ if (!$result) {
           <th>Course</th>
           <th>Date Applied</th>
           <th>Status</th>
+          <th>Action</th>
         </tr>
 
         <?php
@@ -196,10 +240,27 @@ if (!$result) {
             echo "<td>" . htmlspecialchars($row['course']) . "</td>";
             echo "<td>" . date('F j, Y', strtotime($row['submitted_at'])) . "</td>";
             echo "<td><span class='sending'>" . htmlspecialchars($row['application_status']) . "</span></td>";
+
+            if ($row['exam_taken'] > 0) {
+              echo "<td>
+                      <form action='result-management.php' method='get' style='display:inline;'>
+                        <input type='hidden' name='application_id' value='" . $row['id'] . "'>
+                        <button type='submit' class='manage-btn'>Manage Result</button>
+                      </form>
+                    </td>";
+            } else {
+              echo "<td>
+                      <form action='mark-exam-taken.php' method='post' style='display:inline;'>
+                        <input type='hidden' name='application_id' value='" . $row['id'] . "'>
+                        <button type='submit' class='manage-btn'>Mark as Taken</button>
+                      </form>
+                    </td>";
+            }
+
             echo "</tr>";
           }
         } else {
-          echo "<tr><td colspan='4'>No approved applicants found.</td></tr>";
+          echo "<tr><td colspan='5'>No approved applicants found.</td></tr>";
         }
         ?>
       </table>

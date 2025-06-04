@@ -1,11 +1,14 @@
+<?php
+include '../../functions/functions.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>NBSC Online Admission - Dashboard</title>
   <style>
-   * {
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -107,8 +110,7 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
     }
 
-    th,
-    td {
+    th, td {
       padding: 12px;
       text-align: left;
       border-bottom: 1px solid #eee;
@@ -131,10 +133,10 @@
       border-radius: 5px;
     }
 
-    .sending {
-      background-color: #b0a8f5;
-      padding: 5px 10px;
-      border-radius: 5px;
+    .no-data {
+      text-align: center;
+      color: #999;
+      padding: 20px 0;
     }
   </style>
 </head>
@@ -159,7 +161,6 @@
       <button onclick="window.location.href='dashboard.php'" class="tab-button">Approved Applications</button>
       <button onclick="window.location.href='exam-scheduling.php'" class="tab-button">Exam Scheduling</button>
       <button class="tab-button active">Result Management</button>
-
     </div>
 
     <div id="result" class="tab-content active">
@@ -168,30 +169,36 @@
         <tr>
           <th>Applicant</th>
           <th>Course</th>
-          <th>Result</th>
-          <th>Status</th>
+          <th>Score</th>
+          <th>Remarks</th>
         </tr>
-        <tr>
-          <td>Maria Santos</td>
-          <td>BSIT</td>
-          <td>85%</td>
-          <td><span class="approved">Passed</span></td>
-        </tr>
-        <tr>
-          <td>Juan Dela Cruz</td>
-          <td>BSED</td>
-          <td>60%</td>
-          <td><span class="failed">Failed</span></td>
-        </tr>
-        <tr>
-          <td>Anna Rivera</td>
-          <td>BSIT</td>
-          <td>75%</td>
-          <td><span class="sending">Pending</span></td>
-        </tr>
+
+        <?php
+        $sql = "
+          SELECT a.full_name, a.course, r.score, r.remarks 
+          FROM results r 
+          INNER JOIN applicants a ON a.application_id = r.application_id 
+          ORDER BY r.exam_taken_at DESC
+        ";
+
+        $result = mysqli_query($mycon, $sql);
+
+        if (mysqli_num_rows($result) > 0) {
+          while ($row = mysqli_fetch_assoc($result)) {
+            $statusClass = strtolower($row['remarks']) === 'passed' ? 'approved' : 'failed';
+            echo "<tr>
+              <td>" . htmlspecialchars($row['full_name']) . "</td>
+              <td>" . htmlspecialchars($row['course']) . "</td>
+              <td>" . htmlspecialchars($row['score']) . "</td>
+              <td><span class='$statusClass'>" . htmlspecialchars($row['remarks']) . "</span></td>
+            </tr>";
+          }
+        } else {
+          echo "<tr><td colspan='4' class='no-data'>No exam results found.</td></tr>";
+        }
+        ?>
       </table>
     </div>
   </div>
 </body>
-
 </html>
