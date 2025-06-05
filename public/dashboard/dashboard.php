@@ -7,7 +7,7 @@
   include '../../functions/db_connect.php';
 
   if (!isset($mycon) || !$mycon) {
-      die("Database connection failed.");
+    die("Database connection failed.");
   }
 
   // Get approved applicants who have NOT taken exam yet
@@ -30,12 +30,13 @@
   $result = mysqli_query($mycon, $query);
 
   if (!$result) {
-      die("Query error: " . mysqli_error($mycon));
+    die("Query error: " . mysqli_error($mycon));
   }
   ?>
 
   <!DOCTYPE html>
   <html lang="en">
+
   <head>
     <meta charset="UTF-8" />
     <title>NBSC Online Admission - Approved Applications</title>
@@ -192,6 +193,7 @@
       }
     </style>
   </head>
+
   <body>
     <div class="sidebar">
       <div class="logo">
@@ -259,4 +261,5 @@
       </div>
     </div>
   </body>
+
   </html>

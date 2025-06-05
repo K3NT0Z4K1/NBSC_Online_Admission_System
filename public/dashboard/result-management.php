@@ -5,6 +5,12 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 include '../../functions/db_connect.php';
+require '../../components/vendor/PHPMailer-6.10.0/PHPMailer-6.10.0/src/Exception.php';
+require '../../components/vendor/PHPMailer-6.10.0/PHPMailer-6.10.0/src/PHPMailer.php';
+require '../../components/vendor/PHPMailer-6.10.0/PHPMailer-6.10.0/src/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 if (!isset($mycon) || !$mycon) {
   die("Database connection failed.");
@@ -18,10 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
 
   if (!is_null($newScore)) {
     $update = "
-            UPDATE tbl_exam_results
-            SET score = $newScore, remarks = '$newRemarks'
-            WHERE application_id = $id
-        ";
+      UPDATE tbl_exam_results
+      SET score = $newScore, remarks = '$newRemarks'
+      WHERE application_id = $id
+    ";
 
     if (mysqli_query($mycon, $update)) {
       echo "<script>alert('Result updated for Applicant ID: $id'); window.location.href = window.location.href;</script>";
@@ -44,7 +50,6 @@ FROM tbl_exam_results r
 INNER JOIN tbl_applications a ON a.id = r.application_id
 LEFT JOIN tbl_courses c ON a.course_id = c.id
 ORDER BY r.exam_taken_at DESC
-
 ";
 
 $result = mysqli_query($mycon, $query);
@@ -61,6 +66,7 @@ if (!$result) {
   <meta charset="UTF-8" />
   <title>NBSC Online Admission - Result Management</title>
   <style>
+    /* Your CSS unchanged */
     * {
       margin: 0;
       padding: 0;
@@ -236,26 +242,179 @@ if (!$result) {
           <th>Score</th>
           <th>Remarks</th>
           <th>Exam Taken At</th>
-          <th>Action</th>
+          <th>Actions</th>
         </tr>
 
-        <?php
-        if (mysqli_num_rows($result) > 0) {
-          while ($row = mysqli_fetch_assoc($result)) {
-            echo "<tr>";
-            echo "<td>" . htmlspecialchars($row['full_name']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['course']) . "</td>";
+        <?php if (mysqli_num_rows($result) > 0): ?>
+          <?php while ($row = mysqli_fetch_assoc($result)): ?>
+            <tr>
+              <td><?= htmlspecialchars($row['full_name']) ?></td>
+              <td><?= htmlspecialchars($row['course'] ?? 'Not assigned') ?></td>
+              <td>
+                <input type="number" name="score[<?= $row['id'] ?>]" value="<?= htmlspecialchars($row['score']) ?>" min="0" max="100" required>
+              </td>
+              <td>
+                <input type="text" name="remarks[<?= $row['id'] ?>]" value="<?= htmlspecialchars($row['remarks']) ?>">
+              </td>
+              <td><?= htmlspecialchars($row['exam_taken_at']) ?></td>
+              <td>
+                <button type="submit" name="save" value="<?= $row['id'] ?>">Save</button>
+                <button type="submit" name="send" value="<?= $row['id'] ?>">Send Result</button>
+              </td>
+            </tr>
+          <?php endwhile; ?>
+        <?php else: ?>
+          <tr>
+            <td colspan="6" class="no-data">No exam results found.</td>
+          </tr>
+        <?php endif; ?>
 
-            echo "<td><input type='number' name='score[{$row['id']}]' value='" . htmlspecialchars($row['score']) . "' min='0' max='100' required></td>";
-            echo "<td><input type='text' name='remarks[{$row['id']}]' value='" . htmlspecialchars($row['remarks']) . "' placeholder='Enter remarks'></td>";
-            echo "<td>" . date('F j, Y, g:i A', strtotime($row['exam_taken_at'])) . "</td>";
-            echo "<td><button type='submit' name='save' value='{$row['id']}'>Save</button></td>";
-            echo "</tr>";
+        <?php
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send'])) {
+          $id = intval($_POST['send']); // application_id
+          $score = isset($_POST['score'][$id]) ? intval($_POST['score'][$id]) : null;
+          $remarks = isset($_POST['remarks'][$id]) ? mysqli_real_escape_string($mycon, $_POST['remarks'][$id]) : '';
+
+          if (is_null($score)) {
+            echo "<script>alert('Score is missing.');</script>";
+            return;
           }
-        } else {
-          echo "<tr><td colspan='6' class='no-data'>No exam results found.</td></tr>";
+
+          // Get applicant data
+          $getApplicant = "SELECT firstname, lastname, email FROM tbl_applications WHERE id = $id";
+          $res = mysqli_query($mycon, $getApplicant);
+          $applicant = mysqli_fetch_assoc($res);
+
+          if (!$applicant) {
+            echo "<script>alert('Applicant not found.');</script>";
+            return;
+          }
+
+          // Programs list by category
+          $programs = [
+            'BSBA' => [
+              "Bachelor of Science in Business Administration Major in Marketing Management",
+              "Bachelor of Science in Business Administration Major in Financial Management",
+              "Bachelor of Science in Business Administration Major in Operations Management"
+            ],
+            'IT' => [
+              "Bachelor of Science in Information Technology"
+            ],
+            'TEP' => [
+              "Bachelor of Secondary in Education Major in English",
+              "Bachelor of Secondary in Education Major in Math",
+              "Bachelor in Elementary Education",
+              "Bachelor of Early Childhood Education"
+            ]
+          ];
+
+          // Determine all qualified course groups based on score (multiple groups allowed)
+          $qualifiedGroups = [];
+
+          if ($score >= 0 && $score <= 65) {
+            $qualifiedGroups[] = 'BSBA';
+          }
+          if ($score >= 66 && $score <= 80) {
+            $qualifiedGroups[] = 'IT';
+          }
+          if ($score > 80) {
+            $qualifiedGroups[] = 'TEP';
+          }
+
+          // Combine all programs from all qualified groups
+          $allQualifiedPrograms = [];
+          foreach ($qualifiedGroups as $group) {
+            $allQualifiedPrograms = array_merge($allQualifiedPrograms, $programs[$group]);
+          }
+
+          // Create a string with all program names separated by line breaks
+          $programListString = implode("<br>", $allQualifiedPrograms);
+
+          // For simplicity, update course_id with the first program found in the qualified groups
+          // You can customize this logic as needed
+          $firstProgramName = $allQualifiedPrograms[0] ?? null;
+
+          if ($firstProgramName) {
+            $courseUpdate = "
+            UPDATE tbl_applications
+            SET course_id = (
+                SELECT id FROM tbl_courses WHERE name = '" . mysqli_real_escape_string($mycon, $firstProgramName) . "' LIMIT 1
+            )
+            WHERE id = $id
+        ";
+            mysqli_query($mycon, $courseUpdate);
+          }
+
+          // Send email using PHPMailer (your existing code)
+          $mail = new PHPMailer(true);
+          try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'kentryanpagongpong@gmail.com';
+            $mail->Password = 'wkzjqmcsebmjoxhh';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('kentryanpagongpong@gmail.com', 'NBSC Admissions');
+            $mail->addAddress($applicant['email'], $applicant['firstname'] . ' ' . $applicant['lastname']);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'NBSC Entrance Exam Result & Course Recommendation';
+            $mail->Body = "
+Dear " . htmlspecialchars($applicant['firstname']) . " " . htmlspecialchars($applicant['lastname']) . "!<br><br>
+
+CONGRATULATIONS for PASSING the NBSC Entrance Examination!<br><br>
+
+Below are the results of your examination:<br><br>
+
+<b>OLSAT Score:</b> <strong>$score</strong><br>
+<b>Remarks:</b> <em>$remarks</em><br><br>
+
+Based on the score you obtained, you are eligible to enroll in one of the following programs:<br><br>
+
+{$programListString}<br><br>
+
+Fill out the enrollment form provided in our NBSC Portal. Click the button provided below to access the enrollment form. To complete the enrollment process, please also submit the following credentials in hard copy to the Registrar's Office.<br><br>
+
+<b>For Senior High School Completers</b><br>
+Original Senior High School/ HS Card (Form 138)<br>
+Original Certificate of Good Moral Character<br>
+Photocopy of Birth Certificate (NSO/PSA)<br>
+1 Long Folder<br>
+1 pc 2x2 picture<br>
+For Married Females: Photocopy of Marriage Certificate<br><br>
+
+<b>For Transferee</b><br>
+Transfer Credential/Honorable Dismissal w/ Evaluation Copy of Grades<br>
+Original Certificate of Good Moral Character<br>
+Photocopy of Birth Certificate (NSO)<br>
+1 Long Folder<br>
+1 pc 2x2 picture<br>
+For Married Females: Photocopy of Marriage Certificate<br><br>
+
+Go to NBSC Portal<br><br>
+
+PLEASE DO NOT SHARE this message to anyone, only one success attempt is given per student.<br><br>
+
+For further questions/concerns, feel free to contact:<br><br>
+
+Northern Bukidnon State College<br>
+Tankulan, Manolo Fortich<br>
+Bukidnon<br>
+nbscaso@nbsc.edu.ph<br>
+        ";
+
+            $mail->send();
+            echo "<script>alert('Results sent successfully.'); window.location.href=window.location.href;</script>";
+          } catch (Exception $e) {
+            echo "<script>alert('Failed to send email: {$mail->ErrorInfo}');</script>";
+          }
         }
+
         ?>
+
+
       </table>
     </form>
   </div>
