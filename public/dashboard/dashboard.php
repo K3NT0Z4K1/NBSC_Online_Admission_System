@@ -1,271 +1,262 @@
-<?php
-// Enable error reporting (disable in production)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+  <?php
+  // Enable error reporting (for dev, disable in production)
+  ini_set('display_errors', 1);
+  ini_set('display_startup_errors', 1);
+  error_reporting(E_ALL);
 
-// Include DB connection
-include '../../functions/db_connect.php';
+  include '../../functions/db_connect.php';
 
-if (!isset($mycon) || !$mycon) {
-    die("Database connection failed.");
-}
+  if (!isset($mycon) || !$mycon) {
+      die("Database connection failed.");
+  }
 
-// Fetch approved applicants and check if exam is taken
-$query = "SELECT 
-            a.id,
-            CONCAT(a.firstname, ' ', a.lastname) AS full_name, 
-            a.course, 
-            a.submitted_at, 
-            a.application_status,
-            (SELECT COUNT(*) FROM tbl_exam_results e WHERE e.application_id = a.id) AS exam_taken
-          FROM tbl_applications a 
-          WHERE a.application_status = 'Approved'";
+  // Get approved applicants who have NOT taken exam yet
+  $query = "
+  SELECT 
+      a.id,
+      CONCAT(a.firstname, ' ', a.lastname) AS full_name, 
+      c.name AS course, 
+      a.submitted_at, 
+      a.application_status
 
-$result = mysqli_query($mycon, $query);
+  FROM tbl_applications a
+  INNER JOIN tbl_courses c ON c.id = a.course_id
+  WHERE a.application_status = 'Approved'
+  AND NOT EXISTS (
+      SELECT 1 FROM tbl_exam_results r WHERE r.application_id = a.id
+  )
+  ";
 
-if (!$result) {
-    die("Query error: " . mysqli_error($mycon));
-}
-?>
+  $result = mysqli_query($mycon, $query);
 
-<!DOCTYPE html>
-<html lang="en">
+  if (!$result) {
+      die("Query error: " . mysqli_error($mycon));
+  }
+  ?>
 
-<head>
-  <meta charset="UTF-8" />
-  <title>NBSC Online Admission - Approved Applications</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-    }
-
-    .sidebar {
-      width: 250px;
-      background-color: #0d1b4c;
-      color: white;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 40px;
-    }
-
-    .logo-img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      background-color: white;
-      padding: 5px;
-    }
-
-    .nav {
-      list-style: none;
-    }
-
-    .nav-item {
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .nav-item.active,
-    .nav-item:hover {
-      background-color: #3053a5;
-    }
-
-    .main {
-      flex: 1;
-      background-color: #f5f5f5;
-      padding: 30px;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 20px;
-    }
-
-    .logout-btn {
-      background-color: #0d1b4c;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .tabs {
-      margin-bottom: 20px;
-    }
-
-    .tab-button {
-      padding: 10px 20px;
-      border: none;
-      background-color: #ddd;
-      margin-right: 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .tab-button.active {
-      background-color: #0d1b4c;
-      color: white;
-    }
-
-    h2 {
-      margin-bottom: 15px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: white;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-    }
-
-    th,
-    td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-
-    th {
-      background-color: #0d1b4c;
-      color: white;
-    }
-
-    .sending {
-      background-color: #c8e6c9;
-      color: #256029;
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-
-    .manage-btn {
-      background-color: #3053a5;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .manage-btn:hover {
-      background-color: #1f3b76;
-    }
-
-    .msg {
-      padding: 10px 20px;
-      margin-bottom: 20px;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-
-    .msg.success {
-      background-color: #d4edda;
-      color: #155724;
-    }
-
-    .msg.warning {
-      background-color: #fff3cd;
-      color: #856404;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="sidebar">
-    <div class="logo">
-      <img src="../../components/img/nbsclogo.png" alt="Logo" class="logo-img" />
-      <h3>NBSC Online Admission</h3>
-    </div>
-    <ul class="nav">
-      <li class="nav-item active">Dashboard</li>
-    </ul>
-  </div>
-
-  <div class="main">
-    <div class="top-bar">
-      <button class="logout-btn" onclick="window.location.href='../../index.php'">Log out</button>
-    </div>
-
-    <div class="tabs">
-      <button class="tab-button active">Approved Applications</button>
-      <button onclick="window.location.href='exam-scheduling.php'" class="tab-button">Exam Scheduling</button>
-      <button onclick="window.location.href='result-management.php'" class="tab-button">Result Management</button>
-    </div>
-
-    <?php
-    if (isset($_GET['msg'])) {
-      if ($_GET['msg'] == 'marked_taken') {
-        echo "<div class='msg success'>Exam successfully marked as taken.</div>";
-      } elseif ($_GET['msg'] == 'already_marked') {
-        echo "<div class='msg warning'>Exam already marked as taken.</div>";
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>NBSC Online Admission - Approved Applications</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
-    }
-    ?>
 
-    <div id="approved" class="tab-content active">
-      <h2>Approved Applications</h2>
-      <table>
-        <tr>
-          <th>Applicant</th>
-          <th>Course</th>
-          <th>Date Applied</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+      }
 
-        <?php
-        if (mysqli_num_rows($result) > 0) {
-          while ($row = mysqli_fetch_assoc($result)) {
-            echo "<tr>";
-            echo "<td>" . htmlspecialchars($row['full_name']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['course']) . "</td>";
-            echo "<td>" . date('F j, Y', strtotime($row['submitted_at'])) . "</td>";
-            echo "<td><span class='sending'>" . htmlspecialchars($row['application_status']) . "</span></td>";
+      .sidebar {
+        width: 250px;
+        background-color: #0d1b4c;
+        color: white;
+        min-height: 100vh;
+        padding: 20px;
+      }
 
-            if ($row['exam_taken'] > 0) {
-              echo "<td>
-                      <form action='result-management.php' method='get' style='display:inline;'>
-                        <input type='hidden' name='application_id' value='" . $row['id'] . "'>
-                        <button type='submit' class='manage-btn'>Manage Result</button>
-                      </form>
-                    </td>";
-            } else {
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 40px;
+      }
+
+      .logo-img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        background-color: white;
+        padding: 5px;
+      }
+
+      .nav {
+        list-style: none;
+      }
+
+      .nav-item {
+        padding: 12px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .nav-item.active,
+      .nav-item:hover {
+        background-color: #3053a5;
+      }
+
+      .main {
+        flex: 1;
+        background-color: #f5f5f5;
+        padding: 30px;
+      }
+
+      .top-bar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 20px;
+      }
+
+      .logout-btn {
+        background-color: #0d1b4c;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .tabs {
+        margin-bottom: 20px;
+      }
+
+      .tab-button {
+        padding: 10px 20px;
+        border: none;
+        background-color: #ddd;
+        margin-right: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .tab-button.active {
+        background-color: #0d1b4c;
+        color: white;
+      }
+
+      h2 {
+        margin-bottom: 15px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+      }
+
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      th {
+        background-color: #0d1b4c;
+        color: white;
+      }
+
+      .sending {
+        background-color: #c8e6c9;
+        color: #256029;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+
+      .manage-btn {
+        background-color: #3053a5;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .manage-btn:hover {
+        background-color: #1f3b76;
+      }
+
+      .msg {
+        padding: 10px 20px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+
+      .msg.success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .msg.warning {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="logo">
+        <img src="../../components/img/nbsclogo.png" alt="Logo" class="logo-img" />
+        <h3>NBSC Online Admission</h3>
+      </div>
+      <ul class="nav">
+        <li class="nav-item active">Dashboard</li>
+      </ul>
+    </div>
+
+    <div class="main">
+      <div class="top-bar">
+        <button class="logout-btn" onclick="window.location.href='../../index.php'">Log out</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-button active">Approved Applications</button>
+        <button onclick="window.location.href='exam-scheduling.php'" class="tab-button">Exam Scheduling</button>
+        <button onclick="window.location.href='result-management.php'" class="tab-button">Result Management</button>
+      </div>
+
+      <?php
+      if (isset($_GET['msg'])) {
+        if ($_GET['msg'] == 'marked_taken') {
+          echo "<div class='msg success'>Exam successfully marked as taken.</div>";
+        } elseif ($_GET['msg'] == 'already_marked') {
+          echo "<div class='msg warning'>Exam already marked as taken.</div>";
+        }
+      }
+      ?>
+
+      <div id="approved" class="tab-content active">
+        <h2>Approved Applications</h2>
+        <table>
+          <tr>
+            <th>Applicant</th>
+            <th>Course</th>
+            <th>Date Applied</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+
+          <?php
+          if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+              echo "<tr>";
+              echo "<td>" . htmlspecialchars($row['full_name']) . "</td>";
+              echo "<td>" . htmlspecialchars($row['course']) . "</td>";
+              echo "<td>" . date('F j, Y', strtotime($row['submitted_at'])) . "</td>";
+              echo "<td><span class='sending'>" . htmlspecialchars($row['application_status']) . "</span></td>";
               echo "<td>
                       <form action='mark-exam-taken.php' method='post' style='display:inline;'>
                         <input type='hidden' name='application_id' value='" . $row['id'] . "'>
                         <button type='submit' class='manage-btn'>Mark as Taken</button>
                       </form>
                     </td>";
+              echo "</tr>";
             }
-
-            echo "</tr>";
+          } else {
+            echo "<tr><td colspan='5'>No approved applicants found.</td></tr>";
           }
-        } else {
-          echo "<tr><td colspan='5'>No approved applicants found.</td></tr>";
-        }
-        ?>
-      </table>
+          ?>
+        </table>
+      </div>
     </div>
-  </div>
-</body>
-
-</html>
+  </body>
+  </html>

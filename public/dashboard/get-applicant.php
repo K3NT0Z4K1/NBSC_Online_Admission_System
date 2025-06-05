@@ -7,7 +7,16 @@ if (!isset($_GET['id'])) {
 }
 
 $id = intval($_GET['id']);
-$query = "SELECT * FROM tbl_applications WHERE id = $id LIMIT 1";
+$query = "
+  SELECT 
+    a.*, 
+    c.name AS course 
+  FROM tbl_applications a
+  INNER JOIN tbl_courses c ON a.course_id = c.id
+  WHERE a.id = $id
+  LIMIT 1
+";
+
 $result = mysqli_query($mycon, $query);
 
 if (!$result || mysqli_num_rows($result) === 0) {
