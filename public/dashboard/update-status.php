@@ -22,9 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("si", $status, $id);
 
     if ($stmt->execute()) {
-        // If Approved, send email notification
         if ($status === 'Approved') {
-            $query = $mycon->prepare("SELECT email, exam_date, CONCAT(firstname, ' ', lastname) AS fullname FROM tbl_applications WHERE id = ?");
+            // Fetch applicant info including exam site
+            $query = $mycon->prepare("
+                SELECT email, exam_date, exam_site, CONCAT(firstname, ' ', lastname) AS fullname 
+                FROM tbl_applications 
+                WHERE id = ?
+            ");
             $query->bind_param("i", $id);
             $query->execute();
             $result = $query->get_result();
@@ -32,9 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($result && $row = $result->fetch_assoc()) {
                 $email = $row['email'];
                 $examDate = $row['exam_date'];
+                $examSite = $row['exam_site'];
                 $fullname = $row['fullname'];
 
-                if (!empty($email) && !empty($examDate)) {
+                if (!empty($email) && !empty($examDate) && !empty($examSite)) {
                     $mail = new PHPMailer(true);
 
                     try {
@@ -42,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $mail->isSMTP();
                         $mail->Host = 'smtp.gmail.com';
                         $mail->SMTPAuth = true;
-                        $mail->Username = 'kentryanpagongpong@gmail.com'; 
-                        $mail->Password = 'wkzjqmcsebmjoxhh';             
+                        $mail->Username = 'kentryanpagongpong@gmail.com';
+                        $mail->Password = 'wkzjqmcsebmjoxhh';
                         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                         $mail->Port = 587;
 
@@ -56,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <p>Dear $fullname,</p>
                             <p>Congratulations! Your admission application has been <strong>approved</strong>.</p>
                             <p>Your scheduled exam date is: <strong>" . date("F d, Y h:i A", strtotime($examDate)) . "</strong>.</p>
+                            <p>Exam site/location: <strong>$examSite</strong></p>
                             <p>Please make sure to arrive on time and bring the necessary documents.</p>
                             <br>
                             <p>Best regards,<br>NBSC Online Admission Team</p>
@@ -67,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         echo "Email failed: {$mail->ErrorInfo}";
                     }
                 } else {
-                    echo "Missing applicant email or exam date.";
+                    echo "Missing email, exam date, or exam site.";
                 }
             }
             $query->close();
