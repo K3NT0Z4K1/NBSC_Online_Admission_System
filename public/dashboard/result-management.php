@@ -256,7 +256,27 @@ if (!$result) {
       <button class="tab-button active">Result Management</button>
     </div>
 
-    <h2>Result Management</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 style="margin: 0;">Results Management</h2>
+      <form method="get" action="" style="display: flex; gap: 10px;">
+        <input
+          type="text"
+          id="searchInput"
+          name="search"
+          placeholder="Search applicant name or course..."
+          style="padding: 10px; width: 300px; border-radius: 5px; border: 1px solid #ccc;"
+          value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
+        <button type="submit" style="padding: 8px 12px; border-radius: 5px; border:none; background-color:#0d1b4c; color:white; cursor:pointer;">
+          Search
+        </button>
+        <?php if (!empty($_GET['search'])): ?>
+          <button type="button" onclick="window.location.href='result-management.php'" style="padding: 8px 12px; border-radius: 5px; border:none; background-color:#ccc; color:black; cursor:pointer;">
+            Clear
+          </button>
+        <?php endif; ?>
+      </form>
+    </div>
+
 
     <form method="POST">
       <table>
