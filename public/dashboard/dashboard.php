@@ -36,11 +36,10 @@ AND NOT EXISTS (
 
 // Add search condition if search term exists
 if ($searchTerm !== '') {
-  // Use prepared statement style ? placeholders but mysqli_query won't accept that directly,
-  // so we safely escape the input here:
   $searchTermEscaped = mysqli_real_escape_string($mycon, $searchTerm);
-  $query .= " AND (CONCAT(a.firstname, ' ', a.lastname) LIKE '%$searchTermEscaped%' OR c.name LIKE '%$searchTermEscaped%') ";
+  $query .= " AND (CONCAT(app.firstname, ' ', app.lastname) LIKE '%$searchTermEscaped%' OR c.name LIKE '%$searchTermEscaped%') ";
 }
+
 
 // Order by submitted_at descending (optional)
 $query .= " ORDER BY a.submitted_at DESC ";

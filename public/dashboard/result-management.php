@@ -36,27 +36,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
   }
 }
 
-// Fetch exam results with remarks included
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
 $query = "
-      SELECT
-          a.id,
-          CONCAT(app.firstname, ' ', app.lastname) AS full_name,
-          c.name AS course,
-          r.score,
-          r.remarks,
-          r.exam_taken_at
-      FROM tbl_exam_results r
-      INNER JOIN tbl_applications a ON a.id = r.application_id
-      INNER JOIN tbl_applicants app ON app.id = a.applicant_id
-      LEFT JOIN tbl_courses c ON a.course_id = c.id
-      ORDER BY r.exam_taken_at DESC
+    SELECT
+        a.id,
+        CONCAT(app.firstname, ' ', app.lastname) AS full_name,
+        c.name AS course,
+        r.score,
+        r.remarks,
+        r.exam_taken_at
+    FROM tbl_exam_results r
+    INNER JOIN tbl_applications a ON a.id = r.application_id
+    INNER JOIN tbl_applicants app ON app.id = a.applicant_id
+    LEFT JOIN tbl_courses c ON a.course_id = c.id
 ";
+
+// Add search condition if search input is provided
+if (!empty($search)) {
+  $search = mysqli_real_escape_string($mycon, $search); // Escape user input
+  $query .= " WHERE CONCAT(app.firstname, ' ', app.lastname) LIKE '%$search%' OR c.name LIKE '%$search%'";
+}
+
+$query .= " ORDER BY r.exam_taken_at DESC";
 
 $result = mysqli_query($mycon, $query);
 
 if (!$result) {
   die("Query error: " . mysqli_error($mycon));
 }
+
+
 
 ?>
 

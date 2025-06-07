@@ -281,8 +281,9 @@ include_once("../../functions/functions.php");
                   ";
 
         if (!empty($search)) {
-          $query .= " AND (CONCAT(tbl_applications.firstname, ' ', tbl_applications.lastname) LIKE '%$search%' OR c.code LIKE '%$search%')";
+          $query .= " AND (CONCAT(app.firstname, ' ', app.lastname) LIKE '%$search%' OR c.code LIKE '%$search%')";
         }
+
 
         $result = mysqli_query($mycon, $query);
         if (!$result) die("Query failed: " . mysqli_error($mycon));
@@ -313,57 +314,57 @@ include_once("../../functions/functions.php");
 
   <!-- Modal -->
   <div id="infoModal" class="modal">
-  <div class="modal-content">
-    <span class="close-btn" onclick="closeModal()">&times;</span>
-    <h3>Applicant Info</h3>
-    <div class="info-item"><span class="label">Full Name:</span> <span id="infoName"></span></div>
-    <div class="info-item"><span class="label">Middle Name:</span> <span id="infoMiddleName"></span></div>
-    <div class="info-item"><span class="label">Suffix:</span> <span id="infoSuffix"></span></div>
-    <div class="info-item"><span class="label">Gender:</span> <span id="infoGender"></span></div>
-    <div class="info-item"><span class="label">Place of Birth:</span> <span id="infoPlaceOfBirth"></span></div>
-    <div class="info-item"><span class="label">Nationality:</span> <span id="infoNationality"></span></div>
-    <div class="info-item"><span class="label">High School:</span> <span id="infoHighSchool"></span></div>
-    <div class="info-item"><span class="label">Year Graduated:</span> <span id="infoYearGraduated"></span></div>
-    <div class="info-item"><span class="label">Parent/Guardian Name:</span> <span id="infoParentName"></span></div>
-    <div class="info-item"><span class="label">Parent/Guardian Contact:</span> <span id="infoParentContact"></span></div>
-    <div class="info-item"><span class="label">Date of Birth:</span> <span id="infoDOB"></span></div>
-    <div class="info-item"><span class="label">Email:</span> <span id="infoEmail"></span></div>
-    <div class="info-item"><span class="label">Contact:</span> <span id="infoContact"></span></div>
-    <div class="info-item"><span class="label">Address:</span> <span id="infoAddress"></span></div>
-    <div class="info-item"><span class="label">Course:</span> <span id="infoCourse"></span></div>
-    <div class="info-item"><span class="label">Status:</span> <span id="infoStatus"></span></div>
-    <div class="info-item"><span class="label">Submitted:</span> <span id="infoSubmitted"></span></div>
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h3>Applicant Info</h3>
+      <div class="info-item"><span class="label">Full Name:</span> <span id="infoName"></span></div>
+      <div class="info-item"><span class="label">Middle Name:</span> <span id="infoMiddleName"></span></div>
+      <div class="info-item"><span class="label">Suffix:</span> <span id="infoSuffix"></span></div>
+      <div class="info-item"><span class="label">Gender:</span> <span id="infoGender"></span></div>
+      <div class="info-item"><span class="label">Place of Birth:</span> <span id="infoPlaceOfBirth"></span></div>
+      <div class="info-item"><span class="label">Nationality:</span> <span id="infoNationality"></span></div>
+      <div class="info-item"><span class="label">High School:</span> <span id="infoHighSchool"></span></div>
+      <div class="info-item"><span class="label">Year Graduated:</span> <span id="infoYearGraduated"></span></div>
+      <div class="info-item"><span class="label">Parent/Guardian Name:</span> <span id="infoParentName"></span></div>
+      <div class="info-item"><span class="label">Parent/Guardian Contact:</span> <span id="infoParentContact"></span></div>
+      <div class="info-item"><span class="label">Date of Birth:</span> <span id="infoDOB"></span></div>
+      <div class="info-item"><span class="label">Email:</span> <span id="infoEmail"></span></div>
+      <div class="info-item"><span class="label">Contact:</span> <span id="infoContact"></span></div>
+      <div class="info-item"><span class="label">Address:</span> <span id="infoAddress"></span></div>
+      <div class="info-item"><span class="label">Course:</span> <span id="infoCourse"></span></div>
+      <div class="info-item"><span class="label">Status:</span> <span id="infoStatus"></span></div>
+      <div class="info-item"><span class="label">Submitted:</span> <span id="infoSubmitted"></span></div>
+    </div>
   </div>
-</div>
 
 
   <script>
     function openModal(id) {
-  fetch("get-applicant.php?id=" + id)
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("infoName").textContent = data.firstname + " " + data.lastname;
-      document.getElementById("infoMiddleName").textContent = data.middlename || '-';
-      document.getElementById("infoSuffix").textContent = data.suffix || '-';
-      document.getElementById("infoGender").textContent = data.gender_select || data.gender_other || '-';
-      document.getElementById("infoPlaceOfBirth").textContent = data.place_of_birth || '-';
-      document.getElementById("infoNationality").textContent = data.nationality || '-';
-      document.getElementById("infoHighSchool").textContent = data.high_school || '-';
-      document.getElementById("infoYearGraduated").textContent = data.year_graduated || '-';
-      document.getElementById("infoParentName").textContent = data.parent_name || '-';
-      document.getElementById("infoParentContact").textContent = data.parent_contact || '-';
-      document.getElementById("infoDOB").textContent = data.dob || '-';
-      document.getElementById("infoEmail").textContent = data.email || '-';
-      document.getElementById("infoContact").textContent = data.contact || '-';
-      document.getElementById("infoAddress").textContent = data.address || '-';
-      document.getElementById("infoCourse").textContent = data.course || '-';
-      document.getElementById("infoStatus").textContent = data.status_applicant_select || data.status_applicant_other || '-';
-      document.getElementById("infoSubmitted").textContent = data.submitted_at || '-';
+      fetch("get-applicant.php?id=" + id)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("infoName").textContent = data.firstname + " " + data.lastname;
+          document.getElementById("infoMiddleName").textContent = data.middlename || '-';
+          document.getElementById("infoSuffix").textContent = data.suffix || '-';
+          document.getElementById("infoGender").textContent = data.gender_select || data.gender_other || '-';
+          document.getElementById("infoPlaceOfBirth").textContent = data.place_of_birth || '-';
+          document.getElementById("infoNationality").textContent = data.nationality || '-';
+          document.getElementById("infoHighSchool").textContent = data.high_school || '-';
+          document.getElementById("infoYearGraduated").textContent = data.year_graduated || '-';
+          document.getElementById("infoParentName").textContent = data.parent_name || '-';
+          document.getElementById("infoParentContact").textContent = data.parent_contact || '-';
+          document.getElementById("infoDOB").textContent = data.dob || '-';
+          document.getElementById("infoEmail").textContent = data.email || '-';
+          document.getElementById("infoContact").textContent = data.contact || '-';
+          document.getElementById("infoAddress").textContent = data.address || '-';
+          document.getElementById("infoCourse").textContent = data.course || '-';
+          document.getElementById("infoStatus").textContent = data.status_applicant_select || data.status_applicant_other || '-';
+          document.getElementById("infoSubmitted").textContent = data.submitted_at || '-';
 
-      document.getElementById("infoModal").style.display = "block";
-    })
-    .catch(err => alert("Error fetching applicant info."));
-}
+          document.getElementById("infoModal").style.display = "block";
+        })
+        .catch(err => alert("Error fetching applicant info."));
+    }
 
 
     function closeModal() {
