@@ -19,17 +19,19 @@ if (isset($_GET['search'])) {
 // Base query
 $query = "
   SELECT 
-      a.id,
-      CONCAT(a.firstname, ' ', a.lastname) AS full_name, 
-      c.name AS course, 
-      a.submitted_at, 
-      a.application_status
-  FROM tbl_applications a
-  INNER JOIN tbl_courses c ON c.id = a.course_id
-  WHERE a.application_status = 'Approved'
-  AND NOT EXISTS (
-      SELECT 1 FROM tbl_exam_results r WHERE r.application_id = a.id
-  )
+    a.id,
+    CONCAT(app.firstname, ' ', app.lastname) AS full_name, 
+    c.name AS course, 
+    a.submitted_at, 
+    a.application_status
+FROM tbl_applications a
+INNER JOIN tbl_courses c ON c.id = a.course_id
+INNER JOIN tbl_applicants app ON app.id = a.applicant_id
+WHERE a.application_status = 'Approved'
+AND NOT EXISTS (
+    SELECT 1 FROM tbl_exam_results r WHERE r.application_id = a.id
+)
+
   ";
 
 // Add search condition if search term exists

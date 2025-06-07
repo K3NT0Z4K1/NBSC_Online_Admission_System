@@ -17,17 +17,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Update application_status in the database
+    // Update application_status
     $stmt = $mycon->prepare("UPDATE tbl_applications SET application_status = ? WHERE id = ?");
     $stmt->bind_param("si", $status, $id);
 
     if ($stmt->execute()) {
         if ($status === 'Approved') {
-            // Fetch applicant info including exam site
+            // Fetch applicant info with JOIN to access email and name
             $query = $mycon->prepare("
-                SELECT email, exam_date, exam_site, CONCAT(firstname, ' ', lastname) AS fullname 
-                FROM tbl_applications 
-                WHERE id = ?
+                SELECT 
+                    a.email, 
+                    ap.exam_date, 
+                    ap.exam_site, 
+                    CONCAT(a.firstname, ' ', a.lastname) AS fullname
+                FROM tbl_applications ap
+                INNER JOIN tbl_applicants a ON ap.applicant_id = a.id
+                WHERE ap.id = ?
+                LIMIT 1
             ");
             $query->bind_param("i", $id);
             $query->execute();

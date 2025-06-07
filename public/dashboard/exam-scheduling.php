@@ -4,6 +4,7 @@ include_once("../../functions/functions.php");
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>NBSC Online Admission - Exam Scheduling</title>
@@ -172,7 +173,8 @@ include_once("../../functions/functions.php");
     .set-btn:hover {
       background-color: #218838;
     }
-     .modal {
+
+    .modal {
       display: none;
       position: fixed;
       z-index: 1000;
@@ -182,7 +184,7 @@ include_once("../../functions/functions.php");
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: rgba(0,0,0,0.4);
+      background-color: rgba(0, 0, 0, 0.4);
     }
 
     .modal-content {
@@ -190,7 +192,7 @@ include_once("../../functions/functions.php");
       margin: auto;
       padding: 20px;
       border: 1px solid #888;
-      width: 50%;
+      width: 30%;
       border-radius: 10px;
     }
 
@@ -210,6 +212,7 @@ include_once("../../functions/functions.php");
     }
   </style>
 </head>
+
 <body>
   <div class="sidebar">
     <div class="logo">
@@ -264,11 +267,18 @@ include_once("../../functions/functions.php");
         if (!isset($mycon) || !$mycon) die("Database connection not established.");
 
         $search = isset($_GET['search']) ? mysqli_real_escape_string($mycon, $_GET['search']) : '';
-        $query = "SELECT tbl_applications.id, CONCAT(tbl_applications.firstname, ' ', tbl_applications.lastname) AS full_name, 
-                  c.code AS course, tbl_applications.submitted_at 
-                  FROM tbl_applications 
-                  INNER JOIN tbl_courses c ON tbl_applications.course_id = c.id 
-                  WHERE tbl_applications.application_status = 'Pending'";
+
+
+        $query = "SELECT 
+                      a.id, 
+                      CONCAT(app.firstname, ' ', app.lastname) AS full_name, 
+                      c.code AS course, 
+                      a.submitted_at
+                  FROM tbl_applications a
+                  INNER JOIN tbl_courses c ON a.course_id = c.id
+                  INNER JOIN tbl_applicants app ON app.id = a.applicant_id
+                  WHERE a.application_status = 'Pending'
+                  ";
 
         if (!empty($search)) {
           $query .= " AND (CONCAT(tbl_applications.firstname, ' ', tbl_applications.lastname) LIKE '%$search%' OR c.code LIKE '%$search%')";
@@ -303,35 +313,58 @@ include_once("../../functions/functions.php");
 
   <!-- Modal -->
   <div id="infoModal" class="modal">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeModal()">&times;</span>
-      <h3>Applicant Info</h3>
-      <div class="info-item"><span class="label">Full Name:</span> <span id="infoName"></span></div>
-      <div class="info-item"><span class="label">Email:</span> <span id="infoEmail"></span></div>
-      <div class="info-item"><span class="label">Contact:</span> <span id="infoContact"></span></div>
-      <div class="info-item"><span class="label">Address:</span> <span id="infoAddress"></span></div>
-      <div class="info-item"><span class="label">Course:</span> <span id="infoCourse"></span></div>
-      <div class="info-item"><span class="label">Status:</span> <span id="infoStatus"></span></div>
-      <div class="info-item"><span class="label">Submitted:</span> <span id="infoSubmitted"></span></div>
-    </div>
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <h3>Applicant Info</h3>
+    <div class="info-item"><span class="label">Full Name:</span> <span id="infoName"></span></div>
+    <div class="info-item"><span class="label">Middle Name:</span> <span id="infoMiddleName"></span></div>
+    <div class="info-item"><span class="label">Suffix:</span> <span id="infoSuffix"></span></div>
+    <div class="info-item"><span class="label">Gender:</span> <span id="infoGender"></span></div>
+    <div class="info-item"><span class="label">Place of Birth:</span> <span id="infoPlaceOfBirth"></span></div>
+    <div class="info-item"><span class="label">Nationality:</span> <span id="infoNationality"></span></div>
+    <div class="info-item"><span class="label">High School:</span> <span id="infoHighSchool"></span></div>
+    <div class="info-item"><span class="label">Year Graduated:</span> <span id="infoYearGraduated"></span></div>
+    <div class="info-item"><span class="label">Parent/Guardian Name:</span> <span id="infoParentName"></span></div>
+    <div class="info-item"><span class="label">Parent/Guardian Contact:</span> <span id="infoParentContact"></span></div>
+    <div class="info-item"><span class="label">Date of Birth:</span> <span id="infoDOB"></span></div>
+    <div class="info-item"><span class="label">Email:</span> <span id="infoEmail"></span></div>
+    <div class="info-item"><span class="label">Contact:</span> <span id="infoContact"></span></div>
+    <div class="info-item"><span class="label">Address:</span> <span id="infoAddress"></span></div>
+    <div class="info-item"><span class="label">Course:</span> <span id="infoCourse"></span></div>
+    <div class="info-item"><span class="label">Status:</span> <span id="infoStatus"></span></div>
+    <div class="info-item"><span class="label">Submitted:</span> <span id="infoSubmitted"></span></div>
   </div>
+</div>
+
 
   <script>
     function openModal(id) {
-      fetch("get-applicant.php?id=" + id)
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("infoName").textContent = data.firstname + " " + data.lastname;
-          document.getElementById("infoEmail").textContent = data.email;
-          document.getElementById("infoContact").textContent = data.contact;
-          document.getElementById("infoAddress").textContent = data.address;
-          document.getElementById("infoCourse").textContent = data.course;
-          document.getElementById("infoStatus").textContent = data.status_applicant;
-          document.getElementById("infoSubmitted").textContent = data.submitted_at;
-          document.getElementById("infoModal").style.display = "block";
-        })
-        .catch(err => alert("Error fetching applicant info."));
-    }
+  fetch("get-applicant.php?id=" + id)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("infoName").textContent = data.firstname + " " + data.lastname;
+      document.getElementById("infoMiddleName").textContent = data.middlename || '-';
+      document.getElementById("infoSuffix").textContent = data.suffix || '-';
+      document.getElementById("infoGender").textContent = data.gender_select || data.gender_other || '-';
+      document.getElementById("infoPlaceOfBirth").textContent = data.place_of_birth || '-';
+      document.getElementById("infoNationality").textContent = data.nationality || '-';
+      document.getElementById("infoHighSchool").textContent = data.high_school || '-';
+      document.getElementById("infoYearGraduated").textContent = data.year_graduated || '-';
+      document.getElementById("infoParentName").textContent = data.parent_name || '-';
+      document.getElementById("infoParentContact").textContent = data.parent_contact || '-';
+      document.getElementById("infoDOB").textContent = data.dob || '-';
+      document.getElementById("infoEmail").textContent = data.email || '-';
+      document.getElementById("infoContact").textContent = data.contact || '-';
+      document.getElementById("infoAddress").textContent = data.address || '-';
+      document.getElementById("infoCourse").textContent = data.course || '-';
+      document.getElementById("infoStatus").textContent = data.status_applicant_select || data.status_applicant_other || '-';
+      document.getElementById("infoSubmitted").textContent = data.submitted_at || '-';
+
+      document.getElementById("infoModal").style.display = "block";
+    })
+    .catch(err => alert("Error fetching applicant info."));
+}
+
 
     function closeModal() {
       document.getElementById("infoModal").style.display = "none";
@@ -356,37 +389,38 @@ include_once("../../functions/functions.php");
       }
 
       fetch("set-exam-date.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "id=" + id + "&exam_date=" + encodeURIComponent(date) + "&exam_site=" + encodeURIComponent(site)
-      })
-      .then(res => res.text())
-      .then(msg => alert(msg))
-      .catch(err => alert("Error: " + err));
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: "id=" + id + "&exam_date=" + encodeURIComponent(date) + "&exam_site=" + encodeURIComponent(site)
+        })
+        .then(res => res.text())
+        .then(msg => alert(msg))
+        .catch(err => alert("Error: " + err));
     }
 
     function updateStatus(id, status) {
       fetch("update-status.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "id=" + id + "&status=" + encodeURIComponent(status)
-      })
-      .then(res => res.text())
-      .then(msg => {
-        if (msg.trim() === "success") {
-          const row = document.getElementById('row_' + id);
-          if (row) row.remove();
-          alert(`Applicant #${id} has been ${status}.`);
-        } else {
-          alert("Failed to update status: " + msg);
-        }
-      })
-      .catch(err => alert("Error: " + err));
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: "id=" + id + "&status=" + encodeURIComponent(status)
+        })
+        .then(res => res.text())
+        .then(msg => {
+          if (msg.trim() === "success") {
+            const row = document.getElementById('row_' + id);
+            if (row) row.remove();
+            alert(`Applicant #${id} has been ${status}.`);
+          } else {
+            alert("Failed to update status: " + msg);
+          }
+        })
+        .catch(err => alert("Error: " + err));
     }
   </script>
 </body>
+
 </html>

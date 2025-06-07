@@ -7,22 +7,59 @@ if (!isset($_GET['id'])) {
 }
 
 $id = intval($_GET['id']);
-$query = "
+
+$stmt = $mycon->prepare("
   SELECT 
-    a.*, 
-    c.name AS course 
-  FROM tbl_applications a
-  INNER JOIN tbl_courses c ON a.course_id = c.id
-  WHERE a.id = $id
+    ap.id AS application_id,
+    ap.submitted_at,
+    ap.application_status,
+    
+    a.firstname,
+    a.lastname,
+    a.middlename,
+    a.suffix,
+    a.gender AS gender_select,
+    a.gender_other,
+    a.dob,
+    a.place_of_birth,
+    a.nationality,
+    a.email,
+    a.contact,
+    a.address,
+    
+    ag.parent_name,
+    ag.parent_contact,
+
+    ast.high_school,
+    ast.year_graduated,
+    ast.status_applicant AS status_applicant_select,
+    ast.status_applicant_other,
+
+    c.name AS course
+
+  FROM tbl_applications ap
+  INNER JOIN tbl_applicants a ON ap.applicant_id = a.id
+  LEFT JOIN tbl_applicant_guardians ag ON ag.applicant_id = a.id
+  LEFT JOIN tbl_applicant_status ast ON ast.applicant_id = a.id
+  LEFT JOIN tbl_courses c ON ap.course_id = c.id
+
+  WHERE ap.id = ?
   LIMIT 1
-";
+");
 
-$result = mysqli_query($mycon, $query);
+if (!$stmt) {
+  echo json_encode(['error' => 'Prepare failed: ' . $mycon->error]);
+  exit;
+}
 
-if (!$result || mysqli_num_rows($result) === 0) {
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
   echo json_encode(['error' => 'Not found']);
   exit;
 }
 
-$data = mysqli_fetch_assoc($result);
+$data = $result->fetch_assoc();
 echo json_encode($data);

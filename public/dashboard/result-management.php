@@ -39,17 +39,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
 
 // Fetch applicants who took exam with their results
 $query = "
-SELECT
-    a.id,
-    CONCAT(a.firstname, ' ', a.lastname) AS full_name,
-    c.name AS course,
-    r.score,
-    r.remarks,
-    r.exam_taken_at
-FROM tbl_exam_results r
-INNER JOIN tbl_applications a ON a.id = r.application_id
-LEFT JOIN tbl_courses c ON a.course_id = c.id
-ORDER BY r.exam_taken_at DESC
+      SELECT
+          a.id,
+          CONCAT(app.firstname, ' ', app.lastname) AS full_name,
+          c.name AS course,
+          r.score,
+          r.exam_taken_at
+      FROM tbl_exam_results r
+      INNER JOIN tbl_applications a ON a.id = r.application_id
+      INNER JOIN tbl_applicants app ON app.id = a.applicant_id
+      LEFT JOIN tbl_courses c ON a.course_id = c.id
+      ORDER BY r.exam_taken_at DESC
+
 ";
 
 $result = mysqli_query($mycon, $query);
