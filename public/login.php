@@ -34,7 +34,7 @@ if (isset($_POST["submit"])) {
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background-color: #f9f7f7;
+            background-color:rgb(186, 186, 186);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -192,10 +192,7 @@ if (isset($_POST["submit"])) {
 
     <script>
         // Fade in body on load
-        window.addEventListener('DOMContentLoaded', () => {
-            document.body.classList.add('fade-in');
-        });
-
+       
         // Toggle password visibility
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
@@ -218,17 +215,23 @@ if (isset($_POST["submit"])) {
             }
         });
 
+         window.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('fade-in');
+        });
+
+
+        
         const signUpLink = document.getElementById('signUpLink');
 
         signUpLink.addEventListener('click', function (e) {
-            e.preventDefault(); 
+            e.preventDefault(); // prevent default navigation
 
             document.body.classList.remove('fade-in');
             document.body.classList.add('fade-out');
 
             setTimeout(() => {
                 window.location.href = signUpLink.href;
-            }, 500); 
+            }, 500); // match the CSS transition duration
         });
     </script>
 

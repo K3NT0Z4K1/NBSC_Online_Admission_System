@@ -4,7 +4,6 @@ include_once("../../functions/functions.php");
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>NBSC Online Admission - Exam Scheduling</title>
@@ -173,8 +172,7 @@ include_once("../../functions/functions.php");
     .set-btn:hover {
       background-color: #218838;
     }
-
-    .modal {
+     .modal {
       display: none;
       position: fixed;
       z-index: 1000;
@@ -184,7 +182,7 @@ include_once("../../functions/functions.php");
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
+      background-color: rgba(0,0,0,0.4);
     }
 
     .modal-content {
@@ -212,7 +210,6 @@ include_once("../../functions/functions.php");
     }
   </style>
 </head>
-
 <body>
   <div class="sidebar">
     <div class="logo">
@@ -359,38 +356,37 @@ include_once("../../functions/functions.php");
       }
 
       fetch("set-exam-date.php", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: "id=" + id + "&exam_date=" + encodeURIComponent(date) + "&exam_site=" + encodeURIComponent(site)
-        })
-        .then(res => res.text())
-        .then(msg => alert(msg))
-        .catch(err => alert("Error: " + err));
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "id=" + id + "&exam_date=" + encodeURIComponent(date) + "&exam_site=" + encodeURIComponent(site)
+      })
+      .then(res => res.text())
+      .then(msg => alert(msg))
+      .catch(err => alert("Error: " + err));
     }
 
     function updateStatus(id, status) {
       fetch("update-status.php", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: "id=" + id + "&status=" + encodeURIComponent(status)
-        })
-        .then(res => res.text())
-        .then(msg => {
-          if (msg.trim() === "success") {
-            const row = document.getElementById('row_' + id);
-            if (row) row.remove();
-            alert(`Applicant #${id} has been ${status}.`);
-          } else {
-            alert("Failed to update status: " + msg);
-          }
-        })
-        .catch(err => alert("Error: " + err));
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "id=" + id + "&status=" + encodeURIComponent(status)
+      })
+      .then(res => res.text())
+      .then(msg => {
+        if (msg.trim() === "success") {
+          const row = document.getElementById('row_' + id);
+          if (row) row.remove();
+          alert(`Applicant #${id} has been ${status}.`);
+        } else {
+          alert("Failed to update status: " + msg);
+        }
+      })
+      .catch(err => alert("Error: " + err));
     }
   </script>
 </body>
-
 </html>

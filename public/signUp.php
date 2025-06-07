@@ -7,14 +7,14 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f9f7f7;
+      background-color: rgb(186, 186, 186);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
-      
+
       /* Start invisible for fade-in */
       opacity: 0;
       transition: opacity 0.5s ease;
@@ -191,7 +191,7 @@
     // Fix fade-out effect on link click
     const logInLink = document.getElementById('logInLink');
 
-    logInLink.addEventListener('click', function (e) {
+    logInLink.addEventListener('click', function(e) {
       e.preventDefault();
 
       document.body.classList.remove('fade-in');
