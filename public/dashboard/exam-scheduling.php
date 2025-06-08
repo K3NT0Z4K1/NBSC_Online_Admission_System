@@ -233,6 +233,7 @@ include_once("../../functions/functions.php");
       <button onclick="window.location.href='dashboard.php'" class="tab-button">Approved Applications</button>
       <button class="tab-button active">Exam Scheduling</button>
       <button onclick="window.location.href='result-management.php'" class="tab-button">Result Management</button>
+      <button onclick="window.location.href='archived-application.php'" class="tab-button">Archived Applications</button>
     </div>
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">

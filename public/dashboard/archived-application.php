@@ -239,24 +239,16 @@ if (!$result) {
     </div>
 
     <div class="tabs">
-      <button class="tab-button active">Approved Applications</button>
+      <button onclick="window.location.href='dashboard.php'" class="tab-button">Approved Applications</button>
       <button onclick="window.location.href='exam-scheduling.php'" class="tab-button">Exam Scheduling</button>
       <button onclick="window.location.href='result-management.php'" class="tab-button">Result Management</button>
-      <button onclick="window.location.href='archived-application.php'" class="tab-button">Archived Applications</button>
+      <button class="tab-button active">Archived Applications</button>
     </div>
 
-    <?php
-    if (isset($_GET['msg'])) {
-      if ($_GET['msg'] == 'marked_taken') {
-        echo "<div class='msg success'>Exam successfully marked as taken.</div>";
-      } elseif ($_GET['msg'] == 'already_marked') {
-        echo "<div class='msg warning'>Exam already marked as taken.</div>";
-      }
-    }
-    ?>
+  
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2 style="margin: 0;">Approved Applications</h2>
+      <h2 style="margin: 0;">Archived Applications</h2>
       <form method="get" action="" style="display: flex; gap: 10px;">
         <input
           type="text"
@@ -269,7 +261,7 @@ if (!$result) {
           Search
         </button>
         <?php if (!empty($_GET['search'])): ?>
-          <button type="button" onclick="window.location.href='dashboard.php'" style="padding: 8px 12px; border-radius: 5px; border:none; background-color:#ccc; color:black; cursor:pointer;">
+          <button type="button" onclick="window.location.href='archived-application.php'" style="padding: 8px 12px; border-radius: 5px; border:none; background-color:#ccc; color:black; cursor:pointer;">
             Clear
           </button>
         <?php endif; ?>
@@ -282,29 +274,9 @@ if (!$result) {
         <th>Course</th>
         <th>Date Applied</th>
         <th>Status</th>
-        <th>Action</th>
       </tr>
 
-      <?php
-      if (mysqli_num_rows($result) > 0) {
-        while ($row = mysqli_fetch_assoc($result)) {
-          echo "<tr>";
-          echo "<td>" . htmlspecialchars($row['full_name']) . "</td>";
-          echo "<td>" . htmlspecialchars($row['course']) . "</td>";
-          echo "<td>" . date('F j, Y', strtotime($row['submitted_at'])) . "</td>";
-          echo "<td><span class='sending'>" . htmlspecialchars($row['application_status']) . "</span></td>";
-          echo "<td>
-                    <form action='mark-exam-taken.php' method='post' style='display:inline;'>
-                      <input type='hidden' name='application_id' value='" . $row['id'] . "'>
-                      <button type='submit' class='manage-btn'>Mark as Taken</button>
-                    </form>
-                  </td>";
-          echo "</tr>";
-        }
-      } else {
-        echo "<tr><td colspan='5'>No approved applicants found.</td></tr>";
-      }
-      ?>
+      
     </table>
 
   </div>

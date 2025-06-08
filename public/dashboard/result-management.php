@@ -264,6 +264,7 @@ if (!$result) {
       <button onclick="window.location.href='dashboard.php'" class="tab-button">Approved Applications</button>
       <button onclick="window.location.href='exam-scheduling.php'" class="tab-button">Exam Scheduling</button>
       <button class="tab-button active">Result Management</button>
+      <button onclick="window.location.href='archived-application.php'" class="tab-button">Archived Applications</button>
     </div>
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -323,9 +324,14 @@ if (!$result) {
 
               <td><?= htmlspecialchars($row['exam_taken_at']) ?></td>
               <td>
-                <button type="submit" name="save" value="<?= $row['id'] ?>">Save</button>
-                <button type="submit" name="send" value="<?= $row['id'] ?>">Send Result</button>
+                <button type="submit" name="save" value="<?= $row['id'] ?>" style="background-color: #4CAF50; color: white; border: none; padding: 6px 12px; border-radius: 4px;">Save</button>
+
+                <button type="submit" name="send" value="<?= $row['id'] ?>" style="background-color: #2196F3; color: white; border: none; padding: 6px 12px; border-radius: 4px;">Send Result</button>
+
+              
               </td>
+
+
             </tr>
           <?php endwhile; ?>
         <?php else: ?>
@@ -335,6 +341,9 @@ if (!$result) {
         <?php endif; ?>
 
         <?php
+
+       
+
         // Email sending logic when Send Result button clicked
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send'])) {
           $id = intval($_POST['send']); // application_id
