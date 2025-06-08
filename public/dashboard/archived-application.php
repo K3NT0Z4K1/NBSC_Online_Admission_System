@@ -10,21 +10,18 @@ if (!isset($mycon) || !$mycon) {
   die("Database connection failed.");
 }
 
-// Handle deletion BEFORE output
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
+   if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
   $id = intval($_POST['delete']); // application_id
 
-  // Delete from tbl_exam_results (or adjust to delete from other tables as needed)
-  $stmt = $mycon->prepare("DELETE FROM tbl_exam_results WHERE application_id = ?");
+  // Then mark application as 'Deleted'
+  $stmt = $mycon->prepare("UPDATE tbl_applications SET application_status = 'Deleted' WHERE id = ?");
   $stmt->bind_param("i", $id);
-
   if ($stmt->execute()) {
     $stmt->close();
-    // Redirect to avoid form resubmission on refresh
     header("Location: " . $_SERVER['PHP_SELF'] . (isset($_GET['search']) ? "?search=" . urlencode($_GET['search']) : ""));
     exit();
   } else {
-    $errorMsg = "Error deleting applicant result: " . htmlspecialchars($stmt->error);
+    $errorMsg = "Error updating application status: " . htmlspecialchars($stmt->error);
     $stmt->close();
   }
 }
@@ -226,6 +223,21 @@ if (!$result) {
       border-radius: 10px;
     }
 
+    .close-btn {
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .info-item {
+      margin-bottom: 10px;
+    }
+
+    .label {
+      font-weight: bold;
+    }
+
     .view-btn {
       background-color: #0d1b4c;
       color: white;
@@ -295,7 +307,7 @@ if (!$result) {
         <th>Date Applied</th>
         <th>Status</th>
         <th>Action</th>
-        <th>Delete</th>
+        <th>----------</th>
       </tr>
 
       <?php while ($row = mysqli_fetch_assoc($result)) : ?>
@@ -310,7 +322,7 @@ if (!$result) {
               data-name="<?php echo htmlspecialchars($row['full_name']); ?>"
               data-date="<?php echo date('F j, Y', strtotime($row['submitted_at'])); ?>"
               data-status="<?php echo htmlspecialchars($row['application_status']); ?>">
-              View
+              View Info
             </button>
           </td>
           <td>
@@ -344,14 +356,13 @@ if (!$result) {
         <div class="info-item"><span class="label">Email:</span> <span id="infoEmail"></span></div>
         <div class="info-item"><span class="label">Contact:</span> <span id="infoContact"></span></div>
         <div class="info-item"><span class="label">Address:</span> <span id="infoAddress"></span></div>
+        <div class="info-item"><span class="label">Course Code:</span> <span id="infoCourseCode"></span></div>
         <div class="info-item"><span class="label">Course:</span> <span id="infoCourse"></span></div>
         <div class="info-item"><span class="label">Status:</span> <span id="infoStatus"></span></div>
         <div class="info-item"><span class="label">Submitted:</span> <span id="infoSubmitted"></span></div>
         <div class="info-item"><span class="label">Exam Date:</span> <span id="infoExamDate"></span></div>
         <div class="info-item"><span class="label">Exam Site:</span> <span id="infoExamSite"></span></div>
         <div class="info-item"><span class="label">Application Status:</span> <span id="infoApplicationStatus"></span></div>
-        <div class="info-item"><span class="label">Course Code:</span> <span id="infoCourseCode"></span></div>
-        <div class="info-item"><span class="label">Course Name:</span> <span id="infoCourseName"></span></div>
         <div class="info-item"><span class="label">Exam Score:</span> <span id="infoExamScore"></span></div>
         <div class="info-item"><span class="label">Exam Taken At:</span> <span id="infoExamTakenAt"></span></div>
 
@@ -359,70 +370,69 @@ if (!$result) {
     </div>
 
 
-   <script>
-  // Function to open the modal and fetch applicant data
-  function openModal(id) {
-    fetch("get-applicant-archived.php?id=" + id)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("infoName").textContent = data.firstname + " " + data.lastname;
-        document.getElementById("infoMiddleName").textContent = data.middlename || '-';
-        document.getElementById("infoSuffix").textContent = data.suffix || '-';
-        document.getElementById("infoGender").textContent = data.gender || data.gender_other || '-';
-        document.getElementById("infoPlaceOfBirth").textContent = data.place_of_birth || '-';
-        document.getElementById("infoNationality").textContent = data.nationality || '-';
-        document.getElementById("infoHighSchool").textContent = data.high_school || '-';
-        document.getElementById("infoYearGraduated").textContent = data.year_graduated || '-';
-        document.getElementById("infoParentName").textContent = data.parent_name || '-';
-        document.getElementById("infoParentContact").textContent = data.parent_contact || '-';
-        document.getElementById("infoDOB").textContent = data.dob || '-';
-        document.getElementById("infoEmail").textContent = data.email || '-';
-        document.getElementById("infoContact").textContent = data.contact || '-';
-        document.getElementById("infoAddress").textContent = data.address || '-';
-        document.getElementById("infoCourse").textContent = data.course_name || '-';
-        document.getElementById("infoStatus").textContent = data.status_applicant || data.status_applicant_other || '-';
-        document.getElementById("infoSubmitted").textContent = data.submitted_at || '-';
+    <script>
+      // Function to open the modal and fetch applicant data
+      function openModal(id) {
+        fetch("get-applicant-archived.php?id=" + id)
+          .then(res => res.json())
+          .then(data => {
+            document.getElementById("infoName").textContent = data.firstname + " " + data.lastname;
+            document.getElementById("infoMiddleName").textContent = data.middlename || '-';
+            document.getElementById("infoSuffix").textContent = data.suffix || '-';
+            document.getElementById("infoGender").textContent = data.gender_select || data.gender_other || '-';
+            document.getElementById("infoPlaceOfBirth").textContent = data.place_of_birth || '-';
+            document.getElementById("infoNationality").textContent = data.nationality || '-';
+            document.getElementById("infoHighSchool").textContent = data.high_school || '-';
+            document.getElementById("infoYearGraduated").textContent = data.year_graduated || '-';
+            document.getElementById("infoParentName").textContent = data.parent_name || '-';
+            document.getElementById("infoParentContact").textContent = data.parent_contact || '-';
+            document.getElementById("infoDOB").textContent = data.dob || '-';
+            document.getElementById("infoEmail").textContent = data.email || '-';
+            document.getElementById("infoContact").textContent = data.contact || '-';
+            document.getElementById("infoAddress").textContent = data.address || '-';
+            document.getElementById("infoCourseCode").textContent = data.course_code || '-';
+            document.getElementById("infoCourse").textContent = data.course || '-';
+            document.getElementById("infoStatus").textContent = data.status_applicant_select || data.status_applicant_other || '-';
+            document.getElementById("infoSubmitted").textContent = data.submitted_at || '-';
+            document.getElementById("infoExamDate").textContent = data.exam_date || '-';
+            document.getElementById("infoExamSite").textContent = data.exam_site || '-';
+            document.getElementById("infoApplicationStatus").textContent = data.application_status || '-';
+            document.getElementById("infoExamScore").textContent = data.exam_score !== null ? data.exam_score : '-';
+            document.getElementById("infoExamTakenAt").textContent = data.exam_taken_at || '-';
 
-        // New fields
-        document.getElementById("infoExamDate").textContent = data.exam_date || '-';
-        document.getElementById("infoExamSite").textContent = data.exam_site || '-';
-        document.getElementById("infoApplicationStatus").textContent = data.application_status || '-';
-        document.getElementById("infoCourseCode").textContent = data.course_code || '-';
-        document.getElementById("infoCourseName").textContent = data.course_name || '-';
-        document.getElementById("infoExamScore").textContent = data.exam_score !== null ? data.exam_score : '-';
-        document.getElementById("infoExamTakenAt").textContent = data.exam_taken_at || '-';
+            document.getElementById("infoModal").style.display = "block";
+          })
+          .catch(err => {
+            alert("Error fetching applicant info.");
+            console.error(err);
+          });
+      }
 
-        document.getElementById("infoModal").style.display = "block";
-      })
-      .catch(err => {
-        alert("Error fetching applicant info.");
-        console.error(err);
+      // Function to close the modal
+      function closeModal() {
+        document.getElementById("infoModal").style.display = "none";
+      }
+
+      // Close modal when clicking outside of modal content
+      window.onclick = function(event) {
+        const modal = document.getElementById("infoModal");
+        if (event.target === modal) {
+          closeModal();
+        }
+      };
+
+      // Attach event listeners after DOM content is loaded
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.view-btn').forEach(button => {
+          button.addEventListener('click', () => {
+            const id = button.getAttribute('data-id');
+            openModal(id);
+          });
+        });
       });
-  }
+    </script>
 
-  // Function to close the modal
-  function closeModal() {
-    document.getElementById("infoModal").style.display = "none";
-  }
 
-  // Close modal when clicking outside of modal content
-  window.onclick = function(event) {
-    const modal = document.getElementById("infoModal");
-    if (event.target === modal) {
-      closeModal();
-    }
-  };
-
-  // Attach event listeners after DOM content is loaded
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.view-btn').forEach(button => {
-      button.addEventListener('click', () => {
-        const id = button.getAttribute('data-id');
-        openModal(id);
-      });
-    });
-  });
-</script>
 
 
 </body>
