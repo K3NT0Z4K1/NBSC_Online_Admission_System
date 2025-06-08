@@ -29,7 +29,8 @@ if (isset($_POST['id'], $_POST['exam_date'], $_POST['exam_site'])) {
         exit;
     }
 
-    $examDate = date('Y-m-d', $timestamp);
+    $examDate = date('Y-m-d H:i:s', $timestamp);
+
 
     // Double-check the format
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $examDate)) {
@@ -68,8 +69,6 @@ if (isset($_POST['id'], $_POST['exam_date'], $_POST['exam_site'])) {
         mysqli_stmt_close($updateStmt);
         echo json_encode(['success' => false, 'message' => 'Failed to set exam date and site.']);
     }
-
 } else {
     echo json_encode(['success' => false, 'message' => 'Missing required data.']);
 }
-?>
