@@ -10,29 +10,42 @@ if (!isset($mycon) || !$mycon) {
   die("Database connection failed.");
 }
 
+// Handle deletion BEFORE output
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
+  $id = intval($_POST['delete']); // application_id
+
+  // Delete from tbl_exam_results (or adjust to delete from other tables as needed)
+  $stmt = $mycon->prepare("DELETE FROM tbl_exam_results WHERE application_id = ?");
+  $stmt->bind_param("i", $id);
+
+  if ($stmt->execute()) {
+    $stmt->close();
+    // Redirect to avoid form resubmission on refresh
+    header("Location: " . $_SERVER['PHP_SELF'] . (isset($_GET['search']) ? "?search=" . urlencode($_GET['search']) : ""));
+    exit();
+  } else {
+    $errorMsg = "Error deleting applicant result: " . htmlspecialchars($stmt->error);
+    $stmt->close();
+  }
+}
+
 // Get search term from GET (if any)
 $searchTerm = '';
 if (isset($_GET['search'])) {
   $searchTerm = trim($_GET['search']);
 }
 
-// Base query
 $query = "
   SELECT 
     a.id,
     CONCAT(app.firstname, ' ', app.lastname) AS full_name, 
-    c.name AS course, 
     a.submitted_at, 
     a.application_status
-FROM tbl_applications a
-INNER JOIN tbl_courses c ON c.id = a.course_id
-INNER JOIN tbl_applicants app ON app.id = a.applicant_id
-WHERE a.application_status = 'Approved'
-AND NOT EXISTS (
-    SELECT 1 FROM tbl_exam_results r WHERE r.application_id = a.id
-)
-
-  ";
+  FROM tbl_applications a
+  LEFT JOIN tbl_courses c ON c.id = a.course_id
+  INNER JOIN tbl_applicants app ON app.id = a.applicant_id
+  WHERE a.application_status = 'Done'
+";
 
 // Add search condition if search term exists
 if ($searchTerm !== '') {
@@ -40,8 +53,7 @@ if ($searchTerm !== '') {
   $query .= " AND (CONCAT(app.firstname, ' ', app.lastname) LIKE '%$searchTermEscaped%' OR c.name LIKE '%$searchTermEscaped%') ";
 }
 
-
-// Order by submitted_at descending (optional)
+// Order by submitted_at descending
 $query .= " ORDER BY a.submitted_at DESC ";
 
 $result = mysqli_query($mycon, $query);
@@ -56,8 +68,9 @@ if (!$result) {
 
 <head>
   <meta charset="UTF-8" />
-  <title>NBSC Online Admission - Approved Applications</title>
+  <title>NBSC Online Admission - Archived Applications</title>
   <style>
+    /* (Your CSS remains unchanged) */
     * {
       margin: 0;
       padding: 0;
@@ -171,42 +184,13 @@ if (!$result) {
       color: white;
     }
 
-    .sending {
-      background-color: #c8e6c9;
-      color: #256029;
+    .done-status {
+      background-color: #e0e0e0;
+      color: #333;
       padding: 5px 10px;
       border-radius: 5px;
       font-weight: bold;
-    }
-
-    .manage-btn {
-      background-color: #3053a5;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .manage-btn:hover {
-      background-color: #1f3b76;
-    }
-
-    .msg {
-      padding: 10px 20px;
-      margin-bottom: 20px;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-
-    .msg.success {
-      background-color: #d4edda;
-      color: #155724;
-    }
-
-    .msg.warning {
-      background-color: #fff3cd;
-      color: #856404;
+      display: inline-block;
     }
 
     .search-bar {
@@ -218,6 +202,41 @@ if (!$result) {
       width: 300px;
       border-radius: 5px;
       border: 1px solid #ccc;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      padding-top: 100px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 30%;
+      border-radius: 10px;
+    }
+
+    .view-btn {
+      background-color: #0d1b4c;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .view-btn:hover {
+      background-color: #3053a5;
     }
   </style>
 </head>
@@ -245,8 +264,6 @@ if (!$result) {
       <button class="tab-button active">Archived Applications</button>
     </div>
 
-  
-
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h2 style="margin: 0;">Archived Applications</h2>
       <form method="get" action="" style="display: flex; gap: 10px;">
@@ -268,20 +285,146 @@ if (!$result) {
       </form>
     </div>
 
+    <?php if (!empty($errorMsg)): ?>
+      <p style="color: red; margin-bottom: 10px;"><?php echo $errorMsg; ?></p>
+    <?php endif; ?>
+
     <table>
       <tr>
         <th>Applicant</th>
-        <th>Course</th>
         <th>Date Applied</th>
         <th>Status</th>
+        <th>Action</th>
+        <th>Delete</th>
       </tr>
 
-      
+      <?php while ($row = mysqli_fetch_assoc($result)) : ?>
+        <tr>
+          <td><?php echo htmlspecialchars($row['full_name']); ?></td>
+          <td><?php echo date('F j, Y', strtotime($row['submitted_at'])); ?></td>
+          <td><span class="done-status"><?php echo htmlspecialchars($row['application_status']); ?></span></td>
+          <td>
+            <button
+              class="view-btn"
+              data-id="<?php echo $row['id']; ?>"
+              data-name="<?php echo htmlspecialchars($row['full_name']); ?>"
+              data-date="<?php echo date('F j, Y', strtotime($row['submitted_at'])); ?>"
+              data-status="<?php echo htmlspecialchars($row['application_status']); ?>">
+              View
+            </button>
+          </td>
+          <td>
+            <form method="post" onsubmit="return confirm('Are you sure you want to delete this applicant result?')">
+              <input type="hidden" name="delete" value="<?php echo $row['id']; ?>">
+              <button type="submit" style="background-color: #f44336; color: white; border: none; padding: 6px 12px; border-radius: 4px;">
+                Delete
+              </button>
+            </form>
+          </td>
+        </tr>
+      <?php endwhile; ?>
     </table>
 
-  </div>
+    <!-- Modal -->
+    <div id="infoModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3>Applicant Info</h3>
+        <div class="info-item"><span class="label">Full Name:</span> <span id="infoName"></span></div>
+        <div class="info-item"><span class="label">Middle Name:</span> <span id="infoMiddleName"></span></div>
+        <div class="info-item"><span class="label">Suffix:</span> <span id="infoSuffix"></span></div>
+        <div class="info-item"><span class="label">Gender:</span> <span id="infoGender"></span></div>
+        <div class="info-item"><span class="label">Place of Birth:</span> <span id="infoPlaceOfBirth"></span></div>
+        <div class="info-item"><span class="label">Nationality:</span> <span id="infoNationality"></span></div>
+        <div class="info-item"><span class="label">High School:</span> <span id="infoHighSchool"></span></div>
+        <div class="info-item"><span class="label">Year Graduated:</span> <span id="infoYearGraduated"></span></div>
+        <div class="info-item"><span class="label">Parent/Guardian Name:</span> <span id="infoParentName"></span></div>
+        <div class="info-item"><span class="label">Parent/Guardian Contact:</span> <span id="infoParentContact"></span></div>
+        <div class="info-item"><span class="label">Date of Birth:</span> <span id="infoDOB"></span></div>
+        <div class="info-item"><span class="label">Email:</span> <span id="infoEmail"></span></div>
+        <div class="info-item"><span class="label">Contact:</span> <span id="infoContact"></span></div>
+        <div class="info-item"><span class="label">Address:</span> <span id="infoAddress"></span></div>
+        <div class="info-item"><span class="label">Course:</span> <span id="infoCourse"></span></div>
+        <div class="info-item"><span class="label">Status:</span> <span id="infoStatus"></span></div>
+        <div class="info-item"><span class="label">Submitted:</span> <span id="infoSubmitted"></span></div>
+        <div class="info-item"><span class="label">Exam Date:</span> <span id="infoExamDate"></span></div>
+        <div class="info-item"><span class="label">Exam Site:</span> <span id="infoExamSite"></span></div>
+        <div class="info-item"><span class="label">Application Status:</span> <span id="infoApplicationStatus"></span></div>
+        <div class="info-item"><span class="label">Course Code:</span> <span id="infoCourseCode"></span></div>
+        <div class="info-item"><span class="label">Course Name:</span> <span id="infoCourseName"></span></div>
+        <div class="info-item"><span class="label">Exam Score:</span> <span id="infoExamScore"></span></div>
+        <div class="info-item"><span class="label">Exam Taken At:</span> <span id="infoExamTakenAt"></span></div>
 
-  
+      </div>
+    </div>
+
+
+   <script>
+  // Function to open the modal and fetch applicant data
+  function openModal(id) {
+    fetch("get-applicant-archived.php?id=" + id)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("infoName").textContent = data.firstname + " " + data.lastname;
+        document.getElementById("infoMiddleName").textContent = data.middlename || '-';
+        document.getElementById("infoSuffix").textContent = data.suffix || '-';
+        document.getElementById("infoGender").textContent = data.gender || data.gender_other || '-';
+        document.getElementById("infoPlaceOfBirth").textContent = data.place_of_birth || '-';
+        document.getElementById("infoNationality").textContent = data.nationality || '-';
+        document.getElementById("infoHighSchool").textContent = data.high_school || '-';
+        document.getElementById("infoYearGraduated").textContent = data.year_graduated || '-';
+        document.getElementById("infoParentName").textContent = data.parent_name || '-';
+        document.getElementById("infoParentContact").textContent = data.parent_contact || '-';
+        document.getElementById("infoDOB").textContent = data.dob || '-';
+        document.getElementById("infoEmail").textContent = data.email || '-';
+        document.getElementById("infoContact").textContent = data.contact || '-';
+        document.getElementById("infoAddress").textContent = data.address || '-';
+        document.getElementById("infoCourse").textContent = data.course_name || '-';
+        document.getElementById("infoStatus").textContent = data.status_applicant || data.status_applicant_other || '-';
+        document.getElementById("infoSubmitted").textContent = data.submitted_at || '-';
+
+        // New fields
+        document.getElementById("infoExamDate").textContent = data.exam_date || '-';
+        document.getElementById("infoExamSite").textContent = data.exam_site || '-';
+        document.getElementById("infoApplicationStatus").textContent = data.application_status || '-';
+        document.getElementById("infoCourseCode").textContent = data.course_code || '-';
+        document.getElementById("infoCourseName").textContent = data.course_name || '-';
+        document.getElementById("infoExamScore").textContent = data.exam_score !== null ? data.exam_score : '-';
+        document.getElementById("infoExamTakenAt").textContent = data.exam_taken_at || '-';
+
+        document.getElementById("infoModal").style.display = "block";
+      })
+      .catch(err => {
+        alert("Error fetching applicant info.");
+        console.error(err);
+      });
+  }
+
+  // Function to close the modal
+  function closeModal() {
+    document.getElementById("infoModal").style.display = "none";
+  }
+
+  // Close modal when clicking outside of modal content
+  window.onclick = function(event) {
+    const modal = document.getElementById("infoModal");
+    if (event.target === modal) {
+      closeModal();
+    }
+  };
+
+  // Attach event listeners after DOM content is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.view-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const id = button.getAttribute('data-id');
+        openModal(id);
+      });
+    });
+  });
+</script>
+
+
 </body>
 
 </html>

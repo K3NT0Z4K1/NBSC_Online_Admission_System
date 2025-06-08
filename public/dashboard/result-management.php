@@ -50,13 +50,15 @@ $query = "
     INNER JOIN tbl_applications a ON a.id = r.application_id
     INNER JOIN tbl_applicants app ON app.id = a.applicant_id
     LEFT JOIN tbl_courses c ON a.course_id = c.id
+    WHERE a.application_status != 'Done'
 ";
 
-// Add search condition if search input is provided
+
 if (!empty($search)) {
-  $search = mysqli_real_escape_string($mycon, $search); // Escape user input
-  $query .= " WHERE CONCAT(app.firstname, ' ', app.lastname) LIKE '%$search%' OR c.name LIKE '%$search%'";
+  $search = mysqli_real_escape_string($mycon, $search);
+  $query .= " AND (CONCAT(app.firstname, ' ', app.lastname) LIKE '%$search%' OR c.name LIKE '%$search%')";
 }
+
 
 $query .= " ORDER BY r.exam_taken_at DESC";
 
@@ -328,7 +330,7 @@ if (!$result) {
 
                 <button type="submit" name="send" value="<?= $row['id'] ?>" style="background-color: #2196F3; color: white; border: none; padding: 6px 12px; border-radius: 4px;">Send Result</button>
 
-              
+
               </td>
 
 
@@ -342,7 +344,7 @@ if (!$result) {
 
         <?php
 
-       
+
 
         // Email sending logic when Send Result button clicked
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send'])) {
@@ -475,6 +477,12 @@ if (!$result) {
 
             $mail->send();
             echo "<script>alert('Email successfully sent to " . htmlspecialchars($applicant['firstname']) . ".'); window.location.href=window.location.href;</script>";
+            
+            $updateStatusSql = "UPDATE tbl_applications SET application_status = 'Done' WHERE id = ?";
+            $stmtStatus = $mycon->prepare($updateStatusSql);
+            $stmtStatus->bind_param('i', $id);
+            $stmtStatus->execute();
+            $stmtStatus->close();
           } catch (Exception $e) {
             echo "<script>alert('Mailer Error: " . htmlspecialchars($mail->ErrorInfo) . "');</script>";
           }
