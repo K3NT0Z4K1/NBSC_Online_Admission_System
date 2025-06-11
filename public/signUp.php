@@ -4,6 +4,28 @@
 <head>
   <meta charset="UTF-8" />
   <title>Admin Officer Sign Up</title>
+
+  <?php
+
+  include_once('../functions/db_connect.php'); 
+  if (isset($_POST['register'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+
+    $stmt = $mycon->prepare("INSERT INTO tbl_admin (username, password) VALUES (?, ?)");
+    $stmt->bind_param("ss", $username, $password);
+
+    if ($stmt->execute()) {
+      echo "<script>alert('Registration successful!');</script>";
+    } else {
+      echo "<script>alert('Registration failed: " . $stmt->error . "');</script>";
+    }
+
+    $stmt->close();
+  }
+  ?>
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -15,17 +37,14 @@
       height: 100vh;
       margin: 0;
 
-      /* Start invisible for fade-in */
       opacity: 0;
       transition: opacity 0.5s ease;
     }
 
-    /* Fade-in class */
     body.fade-in {
       opacity: 1;
     }
 
-    /* Fade-out class */
     body.fade-out {
       opacity: 0;
     }

@@ -379,13 +379,21 @@ if (!$result) {
               "Bachelor of Science in Business Administration Major in Operations Management"
             ],
             'IT' => [
-              "Bachelor of Science in Information Technology"
+              "Bachelor of Science in Information Technology",
+              "Bachelor of Science in Business Administration Major in Marketing Management",
+              "Bachelor of Science in Business Administration Major in Financial Management",
+              "Bachelor of Science in Business Administration Major in Operations Management"
             ],
             'TEP' => [
               "Bachelor of Secondary in Education Major in English",
               "Bachelor of Secondary in Education Major in Math",
               "Bachelor in Elementary Education",
-              "Bachelor of Early Childhood Education"
+              "Bachelor of Early Childhood Education",
+              "Bachelor of Science in Information Technology",
+              "Bachelor of Science in Business Administration Major in Marketing Management",
+              "Bachelor of Science in Business Administration Major in Financial Management",
+              "Bachelor of Science in Business Administration Major in Operations Management"
+
             ]
           ];
 
@@ -477,7 +485,7 @@ if (!$result) {
 
             $mail->send();
             echo "<script>alert('Email successfully sent to " . htmlspecialchars($applicant['firstname']) . ".'); window.location.href=window.location.href;</script>";
-            
+
             $updateStatusSql = "UPDATE tbl_applications SET application_status = 'Done' WHERE id = ?";
             $stmtStatus = $mycon->prepare($updateStatusSql);
             $stmtStatus->bind_param('i', $id);

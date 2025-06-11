@@ -1,6 +1,6 @@
 <?php
 session_start();
-include_once('../functions/functions.php'); // defines $pdo
+include_once('../functions/functions.php');
 
 $success = '';
 $error = '';
@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $lastname = $_POST['lastname'] ?? '';
   $middlename = $_POST['middlename'] ?? null;
   $suffix = $_POST['suffix'] ?? null;
-  $gender = $_POST['gender_select'] ?? 'Male';  
+  $gender = $_POST['gender_select'] ?? 'Male';
   $gender_other = $_POST['gender_other'] ?? null;
   $dob = $_POST['dob'] ?? '';
   $place_of_birth = $_POST['place_of_birth'] ?? null;
@@ -91,11 +91,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $pdo->commit();
 
-    // Set success message variable instead of echoing
-    $success = "Application submitted successfully! Applicant ID: " . $applicant_id;
+    $success = "Application submitted successfully!";
   } catch (PDOException $e) {
     $pdo->rollBack();
-    // Set error message variable instead of echoing
+
     $error = "Failed to submit application: " . $e->getMessage();
   }
 }
@@ -233,6 +232,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <div class="alert alert-success" role="alert"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
 
+    <script>
+      document.querySelector("form").addEventListener("submit", function(e) {
+        const gender = document.getElementById("gender").value;
+        const genderOther = document.getElementById("gender_other").value;
+
+        if (gender === "Other" && genderOther.trim() === "") {
+          e.preventDefault();
+          alert("Please specify your gender.");
+          document.getElementById("gender_other").focus();
+          return false;
+        }
+      });
+    </script>
+
     <form method="post" action="application.php" novalidate>
       <div class="mb-3">
         <label for="firstname">First Name *</label>
@@ -248,7 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
       <div class="mb-3">
         <label for="middlename">Middle Name</label>
-        <input type="text" class="form-control" id="middlename" name="middlename"
+        <input type="text" class="form-control" id="middlename" name="middlename" required
           value="<?= htmlspecialchars($_POST['middlename'] ?? '') ?>" />
       </div>
 
@@ -270,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
       <div class="mb-3" id="gender_other_div" style="display: none;">
         <label for="gender_other">Please specify your gender *</label>
-        <input type="text" class="form-control" id="gender_other" name="gender_other" value="<?= htmlspecialchars($_POST['gender_other'] ?? '') ?>" />
+        <input type="text" class="form-control" id="gender_other" name="gender_other" required value="<?= htmlspecialchars($_POST['gender_other'] ?? '') ?>" />
       </div>
 
       <script>
@@ -291,32 +304,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         genderSelect.addEventListener('change', toggleOtherGender);
 
-        // On page load - to maintain state if form is reloaded
         window.onload = toggleOtherGender;
       </script>
 
 
       <div class="mb-3">
         <label for="place_of_birth">Place of Birth</label>
-        <input type="text" class="form-control" id="place_of_birth" name="place_of_birth"
+        <input type="text" class="form-control" id="place_of_birth" name="place_of_birth" required
           value="<?= htmlspecialchars($_POST['place_of_birth'] ?? '') ?>" />
       </div>
 
       <div class="mb-3">
         <label for="nationality">Nationality</label>
-        <input type="text" class="form-control" id="nationality" name="nationality"
+        <input type="text" class="form-control" id="nationality" name="nationality" required
           value="<?= htmlspecialchars($_POST['nationality'] ?? '') ?>" />
       </div>
 
       <div class="mb-3">
         <label for="high_school">High School Name</label>
-        <input type="text" class="form-control" id="high_school" name="high_school"
+        <input type="text" class="form-control" id="high_school" name="high_school" required
           value="<?= htmlspecialchars($_POST['high_school'] ?? '') ?>" />
       </div>
 
       <div class="mb-3">
         <label for="year_graduated">Year Graduated</label>
-        <input type="number" min="1900" max="<?= date('Y') ?>" class="form-control" id="year_graduated" name="year_graduated"
+        <input type="number" min="1900" max="<?= date('Y') ?>" class="form-control" id="year_graduated" name="year_graduated" required
           value="<?= htmlspecialchars($_POST['year_graduated'] ?? '') ?>" />
       </div>
 
@@ -368,7 +380,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         statusSelect.addEventListener('change', toggleOtherStatus);
 
-        // Maintain visibility on page reload
         window.onload = toggleOtherStatus;
       </script>
 
@@ -422,6 +433,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
       <button type="submit" class="btn-submit">Submit Application</button>
     </form>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+
+        form.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter' && event.target.tagName.toLowerCase() !== 'textarea') {
+            event.preventDefault();
+          }
+        });
+      });
+    </script>
   </div>
 </body>
 
