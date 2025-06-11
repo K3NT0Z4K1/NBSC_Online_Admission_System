@@ -26,7 +26,6 @@ if (!isset($mycon) || !$mycon) {
   }
 }
 
-// Get search term from GET (if any)
 $searchTerm = '';
 if (isset($_GET['search'])) {
   $searchTerm = trim($_GET['search']);
@@ -67,7 +66,6 @@ if (!$result) {
   <meta charset="UTF-8" />
   <title>NBSC Online Admission - Archived Applications</title>
   <style>
-    /* (Your CSS remains unchanged) */
     * {
       margin: 0;
       padding: 0;
